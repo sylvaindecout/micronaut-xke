@@ -1,6 +1,20 @@
 # micronaut-xke
 This project is used as a support for an introduction to [Micronaut](https://micronaut.io).
 
+## Prerequisites
+### Install Micronaut CLI
+* Homebrew (MacOS): `brew install micronaut`
+
+### Configure IDE
+1. IntelliJ: enable annotation processing
+2. IntelliJ: delegate IDE build/run actions to gradle
+
+## Run project
+```shell
+cd booking-service
+./gradlew run
+```
+
 ## Use case
 The first goal is to define a set of microservices with 2 levels of depth as well as a test client.
 ![First step](./micronaut_use_case.png)
@@ -16,3 +30,10 @@ Target architecture introduces several technical concepts:
 * Cloud computing, with the introduction of AWS SQS, AWS API Gateway and AWS Lambda.
 ![Target](./micronaut_target.png)
 
+## How to: create a module
+```shell
+mkdir booking-service
+cd booking-service
+mn create-app fr.xebia.xke.micronaut.booking.booking-service --inplace --features=management,hibernate-jpa
+```
+The list of available Micronaut features can be accessed: `mn profile-info base`
