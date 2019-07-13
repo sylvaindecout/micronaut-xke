@@ -10,8 +10,7 @@ import javax.inject.Inject;
 import java.util.Map;
 
 import static io.micronaut.http.HttpRequest.GET;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @MicronautTest
 class InfoTest {
@@ -25,17 +24,21 @@ class InfoTest {
         final HttpResponse<Map> response = client.toBlocking()
                 .exchange(GET("/info"), Map.class);
 
-        assertEquals(response.status().getCode(), 200);
+        assertThat(response.status().getCode()).isEqualTo(200);
+        assertThatResponseBodyContainsCommitInfo(response.body());
+    }
 
-        final Map<?, ?> json = response.body();
+    private static void assertThatResponseBodyContainsCommitInfo(final Map<Object, Object> body) {
+        assertThat(body).isNotNull();
+        assertThat(body).containsKey("git");
+        final Map<Object, Object> gitInfo = getChild(body, "git");
+        assertThat(gitInfo).containsKeys("commit", "branch");
+        final Map<Object, Object> commitInfo = getChild(gitInfo, "commit");
+        assertThat(commitInfo).containsKeys("message", "time", "id", "user");
+    }
 
-        assertNotNull(json.get("git"));
-        assertNotNull(((Map) json.get("git")).get("commit"));
-        assertNotNull(((Map) ((Map) json.get("git")).get("commit")).get("message"));
-        assertNotNull(((Map) ((Map) json.get("git")).get("commit")).get("time"));
-        assertNotNull(((Map) ((Map) json.get("git")).get("commit")).get("id"));
-        assertNotNull(((Map) ((Map) json.get("git")).get("commit")).get("user"));
-        assertNotNull(((Map) json.get("git")).get("branch"));
+    private static Map<Object, Object> getChild(final Map<Object, Object> parent, final String key) {
+        return (Map<Object, Object>) parent.get(key);
     }
 
 }
