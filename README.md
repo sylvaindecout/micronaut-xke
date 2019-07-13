@@ -37,3 +37,10 @@ cd booking-service
 mn create-app fr.xebia.xke.micronaut.booking.booking-service --inplace --features=management,hibernate-jpa
 ```
 The list of available Micronaut features can be accessed: `mn profile-info base`
+
+Some dependencies need to be added specifically in `build.gradle`:
+* AssertJ: `testCompile "org.assertj:assertj-core:3.12.2"`
+* Lombok: `annotationProcessor "org.projectlombok:lombok:1.18.8"`
+* Lombok: `compileOnly "org.projectlombok:lombok:1.18.8"`
+* Guava: `compile "com.google.guava:guava:28.0-jre"`
+* Mockito: `testCompile "org.mockito:mockito-junit-jupiter:2.28.2"`
