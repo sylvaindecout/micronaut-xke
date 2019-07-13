@@ -1,5 +1,6 @@
 package fr.xebia.xke.micronaut.booking;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
@@ -11,8 +12,8 @@ import lombok.Value;
 @JsonDeserialize(builder = Stock.StockBuilder.class)
 public final class Stock {
 
-    @NonNull String articleReference;
-    @NonNull Integer quantity; //FIXME: replace with a VO and JsonUnwrapped it!
+    @JsonUnwrapped @NonNull ArticleReference article;
+    @JsonUnwrapped @NonNull Quantity quantity;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class StockBuilder {}
