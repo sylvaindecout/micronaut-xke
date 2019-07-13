@@ -1,4 +1,4 @@
-package fr.xebia.xke.micronaut.booking;
+package fr.xebia.xke.micronaut.booking.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NonNull;

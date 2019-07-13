@@ -12,7 +12,8 @@ import java.util.Map;
 import static io.micronaut.http.HttpRequest.GET;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@MicronautTest
+//FIXME: disabling transactions is only a workaround to get it working until 1.2.0 is released (cf. https://github.com/micronaut-projects/micronaut-core/issues/1871)
+@MicronautTest(transactional = false)
 class InfoTest {
 
     @Inject

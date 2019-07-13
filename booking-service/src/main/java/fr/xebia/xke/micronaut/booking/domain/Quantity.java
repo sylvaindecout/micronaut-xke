@@ -1,4 +1,4 @@
-package fr.xebia.xke.micronaut.booking;
+package fr.xebia.xke.micronaut.booking.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NonNull;
@@ -16,6 +16,10 @@ public final class Quantity {
         checkArgument(value >= 0,
                 "Quantity cannot be negative (input value: %s)", value);
         this.value = value;
+    }
+
+    public Quantity add(@NonNull final Quantity quantity) {
+        return new Quantity(this.value + quantity.value);
     }
 
 }
