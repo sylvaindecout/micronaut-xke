@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: fr.xebia.xke.micronaut.booking.simulator
+---
+testFramework: junit
+sourceLanguage: java
