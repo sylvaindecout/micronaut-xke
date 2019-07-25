@@ -3,3 +3,5 @@ micronaut:
     name: stock-update-simulator
   server:
     port: 8089
+booking:
+  base-url: http://localhost:8086
