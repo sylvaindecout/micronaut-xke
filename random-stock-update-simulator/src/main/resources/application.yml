@@ -1,3 +1,5 @@
 micronaut:
   application:
     name: stock-update-simulator
+  server:
+    port: 8089
