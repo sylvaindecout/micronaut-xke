@@ -2,6 +2,8 @@
 micronaut:
   application:
     name: booking-service
+  server:
+    port: 8086
 
 ---
 datasources:
