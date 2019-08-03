@@ -3,7 +3,10 @@ package fr.xebia.xke.micronaut.booking.database;
 import fr.xebia.xke.micronaut.booking.domain.ArticleReference;
 import fr.xebia.xke.micronaut.booking.domain.Quantity;
 import fr.xebia.xke.micronaut.booking.domain.Stock;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,6 +15,9 @@ import javax.validation.constraints.PositiveOrZero;
 import static javax.persistence.GenerationType.AUTO;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "STOCK")
 final class StockEntity {
@@ -28,13 +34,6 @@ final class StockEntity {
     @PositiveOrZero
     @Column(name = "QUANTITY")
     private Long quantity;
-
-    static StockEntity fromDomain(final Stock stock) {
-        final StockEntity entity = new StockEntity();
-        entity.setArticleReference(stock.getArticle().getReference());
-        entity.setQuantity(stock.getQuantity().getValue());
-        return entity;
-    }
 
     Stock toDomain() {
         return Stock.builder()

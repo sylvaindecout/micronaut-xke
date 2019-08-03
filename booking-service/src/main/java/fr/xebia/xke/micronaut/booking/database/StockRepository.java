@@ -37,7 +37,7 @@ class StockRepository {
 
     @Transactional
     void save(final StockEntity stock) {
-        entityManager.persist(stock);
+        entityManager.merge(stock);
     }
 
 }

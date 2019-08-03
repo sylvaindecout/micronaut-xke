@@ -3,13 +3,14 @@ package fr.xebia.xke.micronaut.booking.database;
 import fr.xebia.xke.micronaut.booking.domain.ArticleReference;
 import fr.xebia.xke.micronaut.booking.domain.Stock;
 import fr.xebia.xke.micronaut.booking.domain.StockStorage;
+import io.micronaut.spring.tx.annotation.Transactional;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 @Singleton
-public final class StockDatabaseAdapter implements StockStorage {
+public class StockDatabaseAdapter implements StockStorage {
 
     private final StockRepository stockRepository;
 
@@ -18,14 +19,22 @@ public final class StockDatabaseAdapter implements StockStorage {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Stock> findByArticleReference(@NotNull ArticleReference article) {
         return stockRepository.findByArticleReference(article.getReference())
                 .map(StockEntity::toDomain);
     }
 
     @Override
+    @Transactional
     public void save(@NotNull Stock stock) {
-        stockRepository.save(StockEntity.fromDomain(stock));
+        final Optional<StockEntity> existingStockEntity = stockRepository.findByArticleReference(stock.getArticle().getReference());
+        final StockEntity stockEntity = StockEntity.builder()
+                .id(existingStockEntity.map(StockEntity::getId).orElse(null))
+                .articleReference(stock.getArticle().getReference())
+                .quantity(stock.getQuantity().getValue())
+                .build();
+        stockRepository.save(stockEntity);
     }
 
 }

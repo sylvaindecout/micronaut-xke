@@ -18,15 +18,25 @@ class StockDatabaseAdapterTest {
     private StockDatabaseAdapter adapter;
 
     @Test
-    void should_update_database(){
+    void should_update_database_with_new_article() {
         final Stock stock = Stock.of(ARTICLE, 159);
+
         adapter.save(stock);
 
         assertThat(adapter.findByArticleReference(ARTICLE)).contains(stock);
     }
 
     @Test
-    void should_not_find_entity_for_unknown_article(){
+    void should_update_database_with_existing_article() {
+        adapter.save(Stock.of(ARTICLE, 159));
+
+        adapter.save(Stock.of(ARTICLE, 3_000));
+
+        assertThat(adapter.findByArticleReference(ARTICLE)).contains(Stock.of(ARTICLE, 3_000));
+    }
+
+    @Test
+    void should_not_find_entity_for_unknown_article() {
         assertThat(adapter.findByArticleReference(ARTICLE)).isEmpty();
     }
 
