@@ -8,7 +8,8 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "2.0.0"
 }
 
-
+// This is a workaround to get transactions working in tests (https://github.com/micronaut-projects/micronaut-core/issues/1871)
+ext['micronaut.test.version'] = '1.0.5'
 
 version "0.1"
 group "fr.xebia.xke.micronaut.booking"

@@ -29,8 +29,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
-//FIXME: disabling transactions is only a workaround to get it working until 1.2.0 is released (cf. https://github.com/micronaut-projects/micronaut-core/issues/1871)
-@MicronautTest(transactional = false)
+@MicronautTest
 class BookingControllerTest {
 
     private static final ArticleReference ARTICLE_1 = new ArticleReference("BOOK000001");

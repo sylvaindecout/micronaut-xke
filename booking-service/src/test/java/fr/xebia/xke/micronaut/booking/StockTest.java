@@ -15,8 +15,7 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-//FIXME: disabling transactions is only a workaround to get it working until 1.2.0 is released (cf. https://github.com/micronaut-projects/micronaut-core/issues/1871)
-@MicronautTest(transactional = false)
+@MicronautTest
 class StockTest {
 
     private static final ArticleReference ARTICLE = new ArticleReference("BOOK30004");

@@ -9,8 +9,7 @@ import javax.inject.Inject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-//FIXME: disabling transactions is only a workaround to get it working until 1.2.0 is released (cf. https://github.com/micronaut-projects/micronaut-core/issues/1871)
-@MicronautTest(transactional = false)
+@MicronautTest
 class StockDatabaseAdapterTest {
 
     private static final ArticleReference ARTICLE = new ArticleReference("BOOK00001");
