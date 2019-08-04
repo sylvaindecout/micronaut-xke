@@ -3,3 +3,9 @@ micronaut:
     name: pricing-service
   server:
     port: 8085
+
+---
+endpoints:
+  info:
+    enabled: true
+    sensitive: false
