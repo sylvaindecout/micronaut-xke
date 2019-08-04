@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: fr.xebia.xke.micronaut.pricing
+---
+testFramework: junit
+sourceLanguage: java
