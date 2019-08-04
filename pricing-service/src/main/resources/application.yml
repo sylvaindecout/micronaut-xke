@@ -3,6 +3,8 @@ micronaut:
     name: pricing-service
   server:
     port: 8085
+booking:
+  base-url: http://localhost:8086
 
 ---
 endpoints:
