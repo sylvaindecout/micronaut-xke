@@ -1,4 +1,4 @@
-package fr.xebia.xke.micronaut.booking.simulator;
+package fr.xebia.xke.micronaut.booking.simulator.booking;
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;

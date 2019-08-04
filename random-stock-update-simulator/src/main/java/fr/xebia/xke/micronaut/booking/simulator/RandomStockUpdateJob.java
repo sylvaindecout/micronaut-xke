@@ -1,5 +1,7 @@
 package fr.xebia.xke.micronaut.booking.simulator;
 
+import fr.xebia.xke.micronaut.booking.simulator.booking.BookingClient;
+import fr.xebia.xke.micronaut.booking.simulator.booking.Stock;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.scheduling.annotation.Scheduled;
 import lombok.extern.slf4j.Slf4j;

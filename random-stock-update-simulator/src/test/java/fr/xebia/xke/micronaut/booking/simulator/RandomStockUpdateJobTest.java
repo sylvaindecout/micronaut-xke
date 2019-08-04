@@ -1,5 +1,7 @@
 package fr.xebia.xke.micronaut.booking.simulator;
 
+import fr.xebia.xke.micronaut.booking.simulator.booking.BookingClient;
+import fr.xebia.xke.micronaut.booking.simulator.booking.Stock;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,8 @@
-package fr.xebia.xke.micronaut.booking.simulator;
+package fr.xebia.xke.micronaut.booking.simulator.booking;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
 
@@ -11,6 +12,7 @@ import javax.validation.constraints.PositiveOrZero;
 
 @Value
 @Builder
+@AllArgsConstructor
 @JsonDeserialize(builder = Stock.StockBuilder.class)
 public class Stock {
 
