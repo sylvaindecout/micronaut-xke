@@ -5,6 +5,8 @@ micronaut:
     port: 8085
 booking:
   base-url: http://localhost:8086
+catalogue:
+  base-url: http://localhost:8087
 
 ---
 endpoints:

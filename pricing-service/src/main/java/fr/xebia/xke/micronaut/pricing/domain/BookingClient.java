@@ -1,5 +1,6 @@
-package fr.xebia.xke.micronaut.pricing;
+package fr.xebia.xke.micronaut.pricing.domain;
 
+import fr.xebia.xke.micronaut.pricing.domain.Stock;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.client.annotation.Client;
