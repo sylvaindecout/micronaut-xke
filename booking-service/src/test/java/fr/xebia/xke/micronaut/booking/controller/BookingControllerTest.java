@@ -52,7 +52,7 @@ class BookingControllerTest {
         given(stockRepository.findByArticleReference(ARTICLE_1)).willReturn(empty());
 
         final ThrowingCallable call = () -> client.toBlocking()
-                .exchange(POST(format("/articles/%s/order", ARTICLE_1), ""), Void.class);
+                .exchange(POST(format("/articles/%s/order", ARTICLE_1.getReference()), ""), Void.class);
 
         assertThatExceptionOfType(HttpClientResponseException.class)
                 .isThrownBy(call)
@@ -109,7 +109,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void should_inialize_quantity_in_stock_for_a_new_article() {
+    void should_initialize_quantity_in_stock_for_a_new_article() {
         given(stockRepository.findByArticleReference(ARTICLE_1)).willReturn(empty());
         final Stock requestBody = Stock.of(ARTICLE_1, 12);
 
