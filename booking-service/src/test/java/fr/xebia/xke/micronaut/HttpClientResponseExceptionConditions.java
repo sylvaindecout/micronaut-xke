@@ -8,7 +8,8 @@ import java.util.Objects;
 
 public final class HttpClientResponseExceptionConditions {
 
-    private HttpClientResponseExceptionConditions() {}
+    private HttpClientResponseExceptionConditions() {
+    }
 
     public static Condition<HttpClientResponseException> status(final HttpStatus status) {
         return new Condition<>(ex -> Objects.equals(ex.getResponse().status(), status),
