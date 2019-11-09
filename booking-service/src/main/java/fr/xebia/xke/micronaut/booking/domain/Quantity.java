@@ -43,6 +43,7 @@ public final class Quantity {
 
     @Override
     public String toString() {
-        return String.valueOf(this.value);
+        return this.error ? "ERROR"
+                : String.valueOf(this.value);
     }
 }
