@@ -14,14 +14,14 @@ public class BookingService {
         this.stockStorage = stockStorage;
     }
 
-    public Optional<Stock> getStock(final ArticleReference article){
+    public Optional<Stock> getStock(final ArticleReference article) {
         return stockStorage.findByArticleReference(article);
     }
 
     @Transactional
     public void order(final ArticleReference article, final Quantity quantity) {
         final Stock updatedStock = stockStorage.findByArticleReference(article)
-                .map(initialStock -> initialStock.add(quantity))
+                .map(initialStock -> initialStock.subtract(quantity))
                 .orElseThrow(() -> new UnknownArticleException(article));
         stockStorage.save(updatedStock);
     }

@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static fr.xebia.xke.micronaut.HttpClientResponseExceptionConditions.status;
 import static io.micronaut.http.HttpRequest.*;
+import static io.micronaut.http.HttpStatus.CONFLICT;
 import static io.micronaut.http.HttpStatus.NOT_FOUND;
 import static java.lang.String.format;
 import static java.util.Optional.empty;
@@ -69,7 +70,21 @@ class BookingControllerTest {
                 .exchange(POST(format("/articles/%s/order?quantity=%s", ARTICLE_1.getReference(), 2), ""), Void.class);
 
         assertThat(response.status().getCode()).isEqualTo(202);
-        then(stockRepository).should().save(Stock.of(ARTICLE_1, 14));
+        then(stockRepository).should().save(Stock.of(ARTICLE_1, 10));
+    }
+
+    @Test
+    void should_fail_to_update_stocks_when_specified_quantity_is_higher_than_available_quantity() {
+        given(stockRepository.findByArticleReference(ARTICLE_1))
+                .willReturn(Optional.of(Stock.of(ARTICLE_1, 12)));
+
+        final ThrowingCallable call = () -> client.toBlocking()
+                .exchange(POST(format("/articles/%s/order?quantity=%s", ARTICLE_1.getReference(), 14), ""), Void.class);
+
+        assertThatExceptionOfType(HttpClientResponseException.class)
+                .isThrownBy(call)
+                .has(status(CONFLICT));
+        then(stockRepository).should(never()).save(any(Stock.class));
     }
 
     @Test
@@ -81,7 +96,7 @@ class BookingControllerTest {
                 .exchange(POST(format("/articles/%s/order", ARTICLE_1.getReference()), ""), Void.class);
 
         assertThat(response.status().getCode()).isEqualTo(202);
-        then(stockRepository).should().save(Stock.of(ARTICLE_1, 13));
+        then(stockRepository).should().save(Stock.of(ARTICLE_1, 11));
     }
 
     @Test

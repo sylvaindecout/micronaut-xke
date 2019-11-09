@@ -3,7 +3,6 @@ package fr.xebia.xke.micronaut.booking.domain;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -23,11 +22,18 @@ public final class Stock {
     @JsonPOJOBuilder(withPrefix = "")
     public static final class StockBuilder {}
 
-    public Stock add(@NonNull final Quantity quantity) {
+    public Stock subtract(@NonNull final Quantity quantity) {
         return Stock.builder()
                 .article(this.article)
-                .quantity(this.quantity.add(quantity))
+                .quantity(this.quantity.subtract(checkAvailability(quantity)))
                 .build();
+    }
+
+    private Quantity checkAvailability(final Quantity quantity) {
+        if (quantity.isGreaterThan(this.quantity)) {
+            throw new UnavailableArticleQuantityException(this.article, quantity, this.quantity);
+        }
+        return quantity;
     }
 
 }

@@ -18,8 +18,13 @@ public final class Quantity {
         this.value = value;
     }
 
-    public Quantity add(@NonNull final Quantity quantity) {
-        return new Quantity(this.value + quantity.value);
+    public Quantity subtract(@NonNull final Quantity quantity) {
+        checkArgument(!quantity.isGreaterThan(this),
+                "Cannot subtract more than available quantity (available quantity: %s, requested quantity: %s)", this, quantity);
+        return new Quantity(this.value - quantity.value);
     }
 
+    public boolean isGreaterThan(final Quantity quantity) {
+        return this.value > quantity.value;
+    }
 }
