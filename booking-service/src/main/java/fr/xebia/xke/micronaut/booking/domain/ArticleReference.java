@@ -20,4 +20,9 @@ public final class ArticleReference {
         this.reference = reference;
     }
 
+    @Override
+    public String toString() {
+        return this.reference;
+    }
+
 }

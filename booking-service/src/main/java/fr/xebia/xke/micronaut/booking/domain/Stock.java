@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.Value;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 
 @Value
 @Builder
@@ -39,4 +40,8 @@ public final class Stock {
         return quantity;
     }
 
+    @Override
+    public String toString() {
+        return format("%s '%s' items", this.quantity, this.article);
+    }
 }

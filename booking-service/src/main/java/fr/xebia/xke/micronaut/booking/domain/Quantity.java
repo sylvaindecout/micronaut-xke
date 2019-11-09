@@ -40,4 +40,9 @@ public final class Quantity {
                 && !quantity.error
                 && this.value > quantity.value;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(this.value);
+    }
 }
