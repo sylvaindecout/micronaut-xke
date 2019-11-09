@@ -62,4 +62,14 @@ class StockTest {
         assertThatNullPointerException()
                 .isThrownBy(() -> initialStock.subtract(null));
     }
+
+    @Test
+    void should_fail_to_subtract_ERROR_quantity() {
+        final Stock initialStock = Stock.of(ARTICLE, 12);
+        final Quantity decrement = Quantity.ERROR;
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> initialStock.subtract(decrement))
+                .withMessage("Invalid input quantity");
+    }
 }

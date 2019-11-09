@@ -3,6 +3,7 @@ package fr.xebia.xke.micronaut.booking;
 import fr.xebia.xke.micronaut.booking.domain.Quantity;
 import org.junit.jupiter.api.Test;
 
+import static fr.xebia.xke.micronaut.booking.domain.Quantity.ERROR;
 import static org.assertj.core.api.Assertions.*;
 
 class QuantityTest {
@@ -37,9 +38,21 @@ class QuantityTest {
     }
 
     @Test
+    void should_fail_to_subtract_from_ERROR_quantity() {
+        assertThat(ERROR.subtract(new Quantity(0L)))
+                .isEqualTo(ERROR);
+    }
+
+    @Test
+    void should_fail_to_subtract_ERROR_quantity() {
+        assertThat(new Quantity(10L).subtract(ERROR))
+                .isEqualTo(ERROR);
+    }
+
+    @Test
     void should_fail_to_subtract_greater_quantity() {
-        assertThatIllegalArgumentException().isThrownBy(() ->
-                new Quantity(12L).subtract(new Quantity(13L)));
+        assertThat(new Quantity(12L).subtract(new Quantity(13L)))
+                .isEqualTo(ERROR);
     }
 
     @Test
@@ -69,6 +82,18 @@ class QuantityTest {
     @Test
     void should_not_consider_as_greater_than_an_equal_quantity() {
         assertThat(new Quantity(12L).isGreaterThan(new Quantity(12L)))
+                .isFalse();
+    }
+
+    @Test
+    void should_not_consider_as_greater_than_ERROR_quantity() {
+        assertThat(new Quantity(12L).isGreaterThan(ERROR))
+                .isFalse();
+    }
+
+    @Test
+    void should_not_consider_ERROR_quantity_as_greater_a_valid_quantity() {
+        assertThat(ERROR.isGreaterThan(new Quantity(0L)))
                 .isFalse();
     }
 

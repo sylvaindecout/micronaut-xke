@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @Value
 @Builder
 @JsonDeserialize(builder = Stock.StockBuilder.class)
@@ -30,6 +32,7 @@ public final class Stock {
     }
 
     private Quantity checkAvailability(final Quantity quantity) {
+        checkArgument(quantity != Quantity.ERROR, "Invalid input quantity");
         if (quantity.isGreaterThan(this.quantity)) {
             throw new UnavailableArticleQuantityException(this.article, quantity, this.quantity);
         }
