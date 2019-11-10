@@ -1,6 +1,5 @@
-package fr.xebia.xke.micronaut.booking;
+package fr.xebia.xke.micronaut.booking.domain;
 
-import fr.xebia.xke.micronaut.booking.domain.ArticleReference;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;

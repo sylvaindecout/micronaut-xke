@@ -1,12 +1,8 @@
-package fr.xebia.xke.micronaut.booking;
+package fr.xebia.xke.micronaut.booking.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import fr.xebia.xke.micronaut.booking.domain.ArticleReference;
-import fr.xebia.xke.micronaut.booking.domain.Quantity;
-import fr.xebia.xke.micronaut.booking.domain.Stock;
-import fr.xebia.xke.micronaut.booking.domain.UnavailableArticleQuantityException;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
 
