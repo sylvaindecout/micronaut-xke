@@ -10,6 +10,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 @Value
 public final class Quantity {
 
+    public static final Quantity ZERO = new Quantity(0L);
     public static final Quantity ERROR = new Quantity(0L, true);
 
     @JsonProperty("quantity")

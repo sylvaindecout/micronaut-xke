@@ -49,6 +49,7 @@ dependencies {
     compileOnly "org.projectlombok:lombok:1.18.8"
     compile "com.google.guava:guava:28.0-jre"
     testCompile "org.mockito:mockito-junit-jupiter:2.28.2"
+    testCompile "net.jqwik:jqwik:1.2.1"
 }
 
 test.classpath += configurations.developmentOnly
