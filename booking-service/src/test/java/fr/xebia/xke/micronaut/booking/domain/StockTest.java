@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.micronaut.test.annotation.MicronautTest;
+import net.jqwik.api.Example;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -14,8 +17,6 @@ import static org.assertj.core.api.Assertions.*;
 @MicronautTest
 class StockTest {
 
-    private static final ArticleReference ARTICLE = new ArticleReference("BOOK30004");
-
     @Inject
     private ObjectMapper mapper;
 
@@ -23,7 +24,7 @@ class StockTest {
     void should_map_to_JSON_with_no_information_loss() throws IOException {
         final ObjectWriter writer = mapper.writer().forType(Stock.class);
         final ObjectReader reader = mapper.reader().forType(Stock.class);
-        final Stock inputObject = Stock.of(ARTICLE, 12);
+        final Stock inputObject = Stock.of(new ArticleReference("BOOK30004"), 12);
 
         final String json = writer.writeValueAsString(inputObject);
         final Stock outputObject = reader.readValue(json);
@@ -31,41 +32,37 @@ class StockTest {
         assertThat(outputObject).isEqualTo(inputObject);
     }
 
-    @Test
-    void should_subtract_quantity() {
-        final Stock initialStock = Stock.of(ARTICLE, 12);
+    @Example
+    void should_subtract_quantity(@ForAll ArticleReference articleReference) {
+        final Stock initialStock = Stock.of(articleReference, 12);
         final Quantity decrement = new Quantity(1L);
-        final Stock decrementedStock = Stock.of(ARTICLE, 11);
+        final Stock decrementedStock = Stock.of(articleReference, 11);
 
         assertThat(initialStock.subtract(decrement))
                 .isEqualTo(decrementedStock);
     }
 
-    @Test
-    void should_fail_to_subtract_unavailable_quantity() {
-        final Stock initialStock = Stock.of(ARTICLE, 12);
-        final Quantity decrement = new Quantity(13L);
+    @Property
+    void should_fail_to_subtract_unavailable_quantity(@ForAll ArticleReference articleReference,
+                                                      @ForAll @AtLeast(13) Quantity decrement) {
+        final Stock initialStock = Stock.of(articleReference, 12);
 
         assertThatExceptionOfType(UnavailableArticleQuantityException.class)
                 .isThrownBy(() -> initialStock.subtract(decrement))
-                .withMessage("Requested quantity (13) is unavailable for article 'BOOK30004' (available: 12)");
+                .withMessage("Requested quantity (%s) is unavailable for article '%s' (available: 12)",
+                        decrement, articleReference);
     }
 
-    @Test
-    void should_fail_to_subtract_null_quantity() {
-        final Stock initialStock = Stock.of(ARTICLE, 12);
-
+    @Property
+    void should_fail_to_subtract_null_quantity(@ForAll Stock initialStock) {
         assertThatNullPointerException()
                 .isThrownBy(() -> initialStock.subtract(null));
     }
 
-    @Test
-    void should_fail_to_subtract_ERROR_quantity() {
-        final Stock initialStock = Stock.of(ARTICLE, 12);
-        final Quantity decrement = Quantity.ERROR;
-
+    @Property
+    void should_fail_to_subtract_ERROR_quantity(@ForAll Stock initialStock) {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> initialStock.subtract(decrement))
+                .isThrownBy(() -> initialStock.subtract(Quantity.ERROR))
                 .withMessage("Invalid input quantity");
     }
 }

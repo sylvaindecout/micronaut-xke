@@ -1,1 +1,3 @@
+fr.xebia.xke.micronaut.booking.domain.ArticleReferenceArbitraryProvider
 fr.xebia.xke.micronaut.booking.domain.QuantityArbitraryProvider
+fr.xebia.xke.micronaut.booking.domain.StockArbitraryProvider
