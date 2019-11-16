@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.micronaut.test.annotation.MicronautTest;
+import net.jqwik.api.Assume;
 import net.jqwik.api.Example;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
@@ -43,14 +44,20 @@ class StockTest {
     }
 
     @Property
-    void should_fail_to_subtract_unavailable_quantity(@ForAll ArticleReference articleReference,
-                                                      @ForAll @AtLeast(13) Quantity decrement) {
-        final Stock initialStock = Stock.of(articleReference, 12);
+    void should_subtract_available_quantity(@ForAll Stock initialStock,
+                                            @ForAll Quantity decrement) {
+        Assume.that(initialStock.getQuantity().getValue() >= decrement.getValue());
+        assertThat(initialStock.subtract(decrement)).isNotNull();
+    }
 
+    @Property
+    void should_fail_to_subtract_unavailable_quantity(@ForAll Stock initialStock,
+                                                      @ForAll Quantity decrement) {
+        Assume.that(initialStock.getQuantity().getValue() < decrement.getValue());
         assertThatExceptionOfType(UnavailableArticleQuantityException.class)
                 .isThrownBy(() -> initialStock.subtract(decrement))
-                .withMessage("Requested quantity (%s) is unavailable for article '%s' (available: 12)",
-                        decrement, articleReference);
+                .withMessage("Requested quantity (%s) is unavailable for article '%s' (available: %s)",
+                        decrement, initialStock.getArticle(), initialStock.getQuantity());
     }
 
     @Property

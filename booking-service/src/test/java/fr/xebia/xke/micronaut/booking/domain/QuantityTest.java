@@ -1,5 +1,6 @@
 package fr.xebia.xke.micronaut.booking.domain;
 
+import net.jqwik.api.Assume;
 import net.jqwik.api.Example;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
@@ -54,8 +55,9 @@ class QuantityTest {
     }
 
     @Property
-    void should_fail_to_subtract_greater_quantity(@ForAll @AtLeast(13) Quantity subtractedQuantity) {
-        assertThat(new Quantity(12L).subtract(subtractedQuantity))
+    void should_fail_to_subtract_greater_quantity(@ForAll Quantity initialQuantity, @ForAll Quantity subtractedQuantity) {
+        Assume.that(subtractedQuantity.getValue() > initialQuantity.getValue());
+        assertThat(initialQuantity.subtract(subtractedQuantity))
                 .isEqualTo(ERROR);
     }
 
@@ -66,32 +68,37 @@ class QuantityTest {
     }
 
     @Property
-    void should_subtract_lesser_quantity(@ForAll @AtMost(12) Quantity subtractedQuantity) {
-        assertThat(new Quantity(12L).subtract(subtractedQuantity))
+    void should_subtract_lesser_quantity(@ForAll Quantity initialQuantity, @ForAll Quantity subtractedQuantity) {
+        Assume.that(subtractedQuantity.getValue() < initialQuantity.getValue());
+        assertThat(initialQuantity.subtract(subtractedQuantity))
                 .isNotEqualTo(ERROR);
     }
 
     @Property
-    void should_subtract_equal_quantity(@ForAll Quantity quantity) {
-        assertThat(quantity.subtract(quantity))
+    void should_subtract_equal_quantity(@ForAll Quantity initialQuantity) {
+        final Quantity equalQuantity = new Quantity(initialQuantity.getValue());
+        assertThat(initialQuantity.subtract(equalQuantity))
                 .isEqualTo(ZERO);
     }
 
     @Property
-    void should_consider_as_greater_than_a_lesser_quantity(@ForAll @AtMost(11) Quantity lesserQuantity) {
-        assertThat(new Quantity(12L).isGreaterThan(lesserQuantity))
+    void should_consider_as_greater_than_a_lesser_quantity(@ForAll Quantity quantity, @ForAll Quantity lesserQuantity) {
+        Assume.that(lesserQuantity.getValue() < quantity.getValue());
+        assertThat(quantity.isGreaterThan(lesserQuantity))
                 .isTrue();
     }
 
     @Property
-    void should_not_consider_as_greater_than_a_greater_quantity(@ForAll @AtLeast(13) Quantity greaterQuantity) {
-        assertThat(new Quantity(12L).isGreaterThan(greaterQuantity))
+    void should_not_consider_as_greater_than_a_greater_quantity(@ForAll Quantity quantity, @ForAll Quantity greaterQuantity) {
+        Assume.that(greaterQuantity.getValue() > quantity.getValue());
+        assertThat(quantity.isGreaterThan(greaterQuantity))
                 .isFalse();
     }
 
     @Property
     void should_not_consider_as_greater_than_an_equal_quantity(@ForAll Quantity quantity) {
-        assertThat(quantity.isGreaterThan(quantity))
+        final Quantity equalQuantity = new Quantity(quantity.getValue());
+        assertThat(quantity.isGreaterThan(equalQuantity))
                 .isFalse();
     }
 
