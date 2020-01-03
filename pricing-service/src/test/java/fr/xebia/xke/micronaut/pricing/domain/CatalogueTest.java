@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.micronaut.test.annotation.MicronautTest;
+import net.jqwik.api.Assume;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -14,13 +17,6 @@ import static org.assertj.core.api.Assertions.*;
 
 @MicronautTest
 class CatalogueTest {
-
-    private static final Article ARTICLE_1 = Article.builder()
-            .reference(new ArticleReference("12345"))
-            .referencePrice(euros(19.99))
-            .build();
-
-    private final Catalogue catalogue = Catalogue.of(ARTICLE_1);
 
     @Inject
     private ObjectMapper mapper;
@@ -52,22 +48,46 @@ class CatalogueTest {
                 .withMessageStartingWith("Expected: array");
     }
 
-    @Test
-    void should_find_article() {
-        assertThat(catalogue.find(ARTICLE_1.getReference()))
-                .contains(ARTICLE_1);
+    @Property
+    void should_find_article(@ForAll Catalogue catalogue) {
+        final Article article = anArticleFrom(catalogue);
+
+        assertThat(catalogue.find(article.getReference()))
+                .contains(article);
     }
 
-    @Test
-    void should_not_find_unknown_article() {
-        assertThat(catalogue.find(new ArticleReference("UNKNOWN")))
+    @Property
+    void should_not_find_unknown_article(@ForAll Catalogue catalogue, @ForAll ArticleReference reference) {
+        Assume.that(!catalogue.getArticles().containsKey(reference));
+
+        assertThat(catalogue.find(reference))
                 .isEmpty();
     }
 
-    @Test
-    void should_fail_to_find_article_for_null_reference() {
+    @Property
+    void should_fail_to_find_article_for_null_reference(@ForAll Catalogue catalogue) {
         assertThatNullPointerException()
                 .isThrownBy(() -> assertThat(catalogue.find(null)));
     }
 
+    @Property
+    void should_expose_price_for_article(@ForAll Catalogue catalogue){
+        final Article article = anArticleFrom(catalogue);
+
+        assertThat(catalogue.getReferencePriceFor(article.getReference()))
+                .isEqualTo(article.getReferencePrice());
+    }
+
+    @Property
+    void should_fail_to_expose_price_for_unknown_article(@ForAll Catalogue catalogue, @ForAll ArticleReference reference){
+        Assume.that(!catalogue.getArticles().containsKey(reference));
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> catalogue.getReferencePriceFor(reference));
+    }
+
+    private static Article anArticleFrom(final Catalogue catalogue) {
+        Assume.that(!catalogue.getArticles().isEmpty());
+        return catalogue.getArticles().values().iterator().next();
+    }
 }

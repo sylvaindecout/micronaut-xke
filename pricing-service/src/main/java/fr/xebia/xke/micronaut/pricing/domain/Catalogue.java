@@ -14,10 +14,11 @@ import lombok.Value;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Arrays.stream;
+import static java.util.Arrays.asList;
 
 @Value
 @Builder
@@ -27,10 +28,19 @@ public class Catalogue {
     @Singular
     @NonNull Map<ArticleReference, Article> articles;
 
-    public static Catalogue of(final Article... articles) {
+    public static Catalogue of(final List<Article> articles) {
         final CatalogueBuilder builder = Catalogue.builder();
-        stream(articles).forEach(builder::addArticle);
+        articles.forEach(builder::addArticle);
         return builder.build();
+    }
+
+    public static Catalogue of(final Article... articles) {
+        return Catalogue.of(asList(articles));
+    }
+
+    Price getReferencePriceFor(final ArticleReference reference) {
+        return find(reference).map(Article::getReferencePrice)
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     static final class CatalogueBuilder {

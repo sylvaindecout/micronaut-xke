@@ -1,0 +1,5 @@
+fr.xebia.xke.micronaut.pricing.domain.ArticleArbitraryProvider
+fr.xebia.xke.micronaut.pricing.domain.ArticleReferenceArbitraryProvider
+fr.xebia.xke.micronaut.pricing.domain.CatalogueArbitraryProvider
+fr.xebia.xke.micronaut.pricing.domain.PriceArbitraryProvider
+fr.xebia.xke.micronaut.pricing.domain.QuantityArbitraryProvider

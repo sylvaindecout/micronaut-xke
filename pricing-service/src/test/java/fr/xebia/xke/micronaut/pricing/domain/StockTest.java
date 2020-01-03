@@ -4,13 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.micronaut.test.annotation.MicronautTest;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.constraints.LongRange;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.*;
 
 @MicronautTest
 class StockTest {
@@ -45,6 +47,24 @@ class StockTest {
         assertThatExceptionOfType(JsonProcessingException.class)
                 .isThrownBy(() -> reader.readValue(json))
                 .withMessageStartingWith("Mandatory field is missing: quantity");
+    }
+
+    @Property
+    void should_initialize_article_reference(@ForAll ArticleReference article, @ForAll Quantity quantity) {
+        final Stock stock = Stock.of(article, quantity.getValue());
+        assertThat(stock.getArticle()).isEqualTo(article);
+    }
+
+    @Property
+    void should_initialize_quantity(@ForAll ArticleReference article, @ForAll Quantity quantity) {
+        final Stock stock = Stock.of(article, quantity.getValue());
+        assertThat(stock.getQuantity()).isEqualTo(quantity);
+    }
+
+    @Property
+    void should_fail_to_initialize_from_null_value(@ForAll @LongRange long quantity) {
+        assertThatNullPointerException()
+                .isThrownBy(() -> Stock.of(null, quantity));
     }
 
 }

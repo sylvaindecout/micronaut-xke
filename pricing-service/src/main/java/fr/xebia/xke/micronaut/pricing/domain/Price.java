@@ -19,6 +19,10 @@ public final class Price {
         this.valueAsCents = valueAsCents;
     }
 
+    public static Price cents(final long valueAsCents){
+        return new Price(valueAsCents);
+    }
+
     public static Price euros(final double valueAsEuros) {
         checkArgument(valueAsEuros >= 0,
                 "Invalid value: %s (expected: positive value)", valueAsEuros);
