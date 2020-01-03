@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: fr.xebia.xke.micronaut.catalogue
+---
+testFramework: junit
+sourceLanguage: java
