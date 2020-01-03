@@ -12,6 +12,10 @@ datasources:
     driverClassName: ${JDBC_DRIVER:org.h2.Driver}
     username: ${JDBC_USER:sa}
     password: ${JDBC_PASSWORD:""}
+endpoints:
+  info:
+    enabled: true
+    sensitive: false
 jpa:
   default:
     packages-to-scan:
