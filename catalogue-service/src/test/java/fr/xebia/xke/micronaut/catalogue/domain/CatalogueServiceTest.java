@@ -1,64 +1,35 @@
 package fr.xebia.xke.micronaut.catalogue.domain;
 
-import fr.xebia.xke.micronaut.catalogue.database.CatalogueDatabaseAdapter;
-import io.micronaut.test.annotation.MicronautTest;
-import io.micronaut.test.annotation.MockBean;
-import org.junit.jupiter.api.Test;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
 
-import javax.inject.Inject;
+import java.util.List;
 
-import static fr.xebia.xke.micronaut.catalogue.domain.Price.euros;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
-@MicronautTest
 class CatalogueServiceTest {
 
-    private static final Article ARTICLE_1 = Article.builder()
-            .reference(new ArticleReference("BOOK30004"))
-            .referencePrice(euros(12.99))
-            .build();
-    private static final Article ARTICLE_2 = Article.builder()
-            .reference(new ArticleReference("BOOK10006"))
-            .referencePrice(euros(99.99))
-            .build();
-    public static final ArticleReference REFERENCE = new ArticleReference("BOOK0001");
+    private final CatalogueStorage catalogueStorage = mock(CatalogueStorage.class);
+    private final CatalogueService service = new CatalogueService(catalogueStorage);
 
-    @Inject
-    CatalogueService service;
+    @Property
+    void should_get_catalogue_from_storage(@ForAll List<Article> articles) {
+        given(catalogueStorage.findAll()).willReturn(articles);
 
-    @Inject
-    CatalogueStorage catalogueStorage;
-
-    @Test
-    void should_get_catalogue_from_storage() {
-        given(catalogueStorage.findAll()).willReturn(asList(
-                ARTICLE_1,
-                ARTICLE_2
-        ));
-
-        assertThat(service.getCatalogue()).isEqualTo(Catalogue.of(
-                ARTICLE_1,
-                ARTICLE_2
-        ));
+        assertThat(service.getCatalogue()).isEqualTo(Catalogue.of(articles));
     }
 
-    @Test
-    void should_add_or_update_article_to_storage() {
-        service.addOrUpdate(REFERENCE, euros(12.99));
+    @Property
+    void should_add_or_update_article_to_storage(@ForAll ArticleReference reference, @ForAll Price price) {
+        service.addOrUpdate(reference, price);
 
         then(catalogueStorage).should().save(Article.builder()
-                .reference(REFERENCE)
-                .referencePrice(euros(12.99))
+                .reference(reference)
+                .referencePrice(price)
                 .build());
-    }
-
-    @MockBean(CatalogueDatabaseAdapter.class)
-    CatalogueStorage mockBooking() {
-        return mock(CatalogueStorage.class);
     }
 
 }
