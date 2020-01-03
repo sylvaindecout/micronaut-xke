@@ -8,7 +8,7 @@ public final class UnavailableArticleQuantityException extends RuntimeException 
 
     UnavailableArticleQuantityException(@NonNull final ArticleReference requestedArticle, @NonNull final Quantity requestedQuantity, @NonNull final Quantity availableQuantity) {
         super(format("Requested quantity (%s) is unavailable for article '%s' (available: %s)",
-                requestedQuantity.getValue(), requestedArticle.getReference(), availableQuantity.getValue()));
+                requestedQuantity, requestedArticle, availableQuantity));
     }
 
 }
