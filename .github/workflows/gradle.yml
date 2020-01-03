@@ -17,3 +17,5 @@ jobs:
         run: ./booking-service/gradlew build
       - name: Build with Gradle - Random stock update simulator
         run: ./random-stock-update-simulator/gradlew build
+      - name: Build with Gradle - Pricing service
+        run: ./pricing-service/gradlew build
