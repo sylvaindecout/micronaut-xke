@@ -2,11 +2,24 @@ package fr.xebia.xke.micronaut.catalogue.domain;
 
 import org.junit.jupiter.api.Test;
 
+import static fr.xebia.xke.micronaut.catalogue.domain.Price.cents;
 import static fr.xebia.xke.micronaut.catalogue.domain.Price.euros;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 class PriceTest {
+
+    @Test
+    void should_initialize_from_value_as_cents() {
+        assertThat(cents(1299).getValueAsCents()).isEqualTo(1299);
+    }
+
+    @Test
+    void should_fail_to_initialize_from_negative_value_in_cents() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> cents(-1299))
+                .withMessage("Invalid value: %s (expected: positive value)", -1299);
+    }
 
     @Test
     void should_initialize_from_value_as_euros() {

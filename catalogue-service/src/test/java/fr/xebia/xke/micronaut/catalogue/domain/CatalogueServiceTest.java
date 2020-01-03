@@ -11,6 +11,7 @@ import static fr.xebia.xke.micronaut.catalogue.domain.Price.euros;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 @MicronautTest
@@ -24,6 +25,7 @@ class CatalogueServiceTest {
             .reference(new ArticleReference("BOOK10006"))
             .referencePrice(euros(99.99))
             .build();
+    public static final ArticleReference REFERENCE = new ArticleReference("BOOK0001");
 
     @Inject
     CatalogueService service;
@@ -42,6 +44,16 @@ class CatalogueServiceTest {
                 ARTICLE_1,
                 ARTICLE_2
         ));
+    }
+
+    @Test
+    void should_add_or_update_article_to_storage() {
+        service.addOrUpdate(REFERENCE, euros(12.99));
+
+        then(catalogueStorage).should().save(Article.builder()
+                .reference(REFERENCE)
+                .referencePrice(euros(12.99))
+                .build());
     }
 
     @MockBean(CatalogueDatabaseAdapter.class)

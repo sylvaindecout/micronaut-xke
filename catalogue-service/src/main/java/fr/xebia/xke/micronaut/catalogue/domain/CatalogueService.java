@@ -15,4 +15,11 @@ public class CatalogueService {
         return Catalogue.of(catalogueStorage.findAll());
     }
 
+    public void addOrUpdate(final ArticleReference articleReference, final Price price) {
+        catalogueStorage.save(Article.builder()
+                .reference(articleReference)
+                .referencePrice(price)
+                .build());
+    }
+
 }
