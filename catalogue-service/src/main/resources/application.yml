@@ -1,0 +1,23 @@
+---
+micronaut:
+  application:
+    name: catalogue-service
+  server:
+    port: 8087
+
+---
+datasources:
+  default:
+    url: ${JDBC_URL:`jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE`}
+    driverClassName: ${JDBC_DRIVER:org.h2.Driver}
+    username: ${JDBC_USER:sa}
+    password: ${JDBC_PASSWORD:""}
+jpa:
+  default:
+    packages-to-scan:
+      - 'fr.xebia.xke.micronaut.catalogue.database'
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        show-sql: true
