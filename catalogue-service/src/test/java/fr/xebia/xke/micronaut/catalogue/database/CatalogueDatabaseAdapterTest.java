@@ -70,4 +70,16 @@ class CatalogueDatabaseAdapterTest {
         assertThat(adapter.findAll()).containsExactly(ARTICLE_1, ARTICLE_2, ARTICLE_3);
     }
 
+    @Test
+    void should_expose_article_in_database() {
+        adapter.save(ARTICLE_1);
+
+        assertThat(adapter.find(ARTICLE_1.getReference())).contains(ARTICLE_1);
+    }
+
+    @Test
+    void should_fail_to_expose_article_not_in_database() {
+        assertThat(adapter.find(REFERENCE)).isEmpty();
+    }
+
 }

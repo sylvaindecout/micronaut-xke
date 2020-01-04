@@ -11,6 +11,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 class CatalogueRepository {
@@ -31,6 +32,11 @@ class CatalogueRepository {
                 .select(rootEntry);
         final TypedQuery<ArticleEntity> typedQuery = entityManager.createQuery(all);
         return typedQuery.getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    Optional<ArticleEntity> find(final String reference) {
+        return Optional.ofNullable(entityManager.find(ArticleEntity.class, reference));
     }
 
     @Transactional

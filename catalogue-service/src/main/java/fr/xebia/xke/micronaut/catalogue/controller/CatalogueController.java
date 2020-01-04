@@ -33,6 +33,14 @@ public class CatalogueController {
         return service.getCatalogue();
     }
 
+    @Get("{articleReference}")
+    @Produces(APPLICATION_JSON)
+    public Article getArticle(@NotBlank final String articleReference) {
+        log.info("Accessing catalogue for article '{}'", articleReference);
+        return service.getArticle(new ArticleReference(articleReference))
+                .orElse(null);
+    }
+
     @Put("{articleReference}{?priceAsCents}")
     public HttpResponse<Void> addOrUpdate(@NotBlank final String articleReference, @Nullable @Positive @QueryValue("priceAsCents") final Integer priceAsCents) {
         return Optional.ofNullable(priceAsCents)

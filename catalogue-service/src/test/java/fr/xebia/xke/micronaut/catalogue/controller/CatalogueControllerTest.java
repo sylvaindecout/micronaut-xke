@@ -14,8 +14,8 @@ import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-
 import java.util.List;
+import java.util.Optional;
 
 import static fr.xebia.xke.micronaut.HttpClientResponseExceptionConditions.status;
 import static fr.xebia.xke.micronaut.catalogue.domain.Price.euros;
@@ -23,6 +23,7 @@ import static io.micronaut.core.type.Argument.listOf;
 import static io.micronaut.http.HttpRequest.GET;
 import static io.micronaut.http.HttpRequest.PUT;
 import static io.micronaut.http.HttpStatus.BAD_REQUEST;
+import static io.micronaut.http.HttpStatus.NOT_FOUND;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,6 +73,30 @@ class CatalogueControllerTest {
                 ARTICLE_1,
                 ARTICLE_2
         ));
+    }
+
+    @Test
+    void should_expose_existing_article() {
+        given(catalogueRepository.find(ARTICLE_1.getReference())).willReturn(Optional.of(ARTICLE_1));
+
+        final HttpResponse<Article> response = client.toBlocking()
+                .exchange(GET(format("/articles/%s", ARTICLE_1.getReference().getValue())), Article.class);
+
+        assertThat(response.status().getCode()).isEqualTo(200);
+        assertThat(response.getBody()).contains(ARTICLE_1);
+    }
+
+    @Test
+    void should_fail_to_expose_unknown_article() {
+        final ArticleReference unknownReference = new ArticleReference("unknown");
+        given(catalogueRepository.find(unknownReference)).willReturn(Optional.empty());
+
+        final ThrowingCallable call = () -> client.toBlocking()
+                .exchange(GET(format("/articles/%s", unknownReference.getValue())), Article.class);
+
+        assertThatExceptionOfType(HttpClientResponseException.class)
+                .isThrownBy(call)
+                .has(status(NOT_FOUND));
     }
 
     @Test

@@ -4,6 +4,7 @@ import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -20,6 +21,20 @@ class CatalogueServiceTest {
         given(catalogueStorage.findAll()).willReturn(articles);
 
         assertThat(service.getCatalogue()).isEqualTo(articles);
+    }
+
+    @Property
+    void should_get_existing_article_from_storage(@ForAll Article article) {
+        given(catalogueStorage.find(article.getReference())).willReturn(Optional.of(article));
+
+        assertThat(service.getArticle(article.getReference())).contains(article);
+    }
+
+    @Property
+    void should_get_unknown_article_from_storage(@ForAll ArticleReference reference) {
+        given(catalogueStorage.find(reference)).willReturn(Optional.empty());
+
+        assertThat(service.getArticle(reference)).isEmpty();
     }
 
     @Property
