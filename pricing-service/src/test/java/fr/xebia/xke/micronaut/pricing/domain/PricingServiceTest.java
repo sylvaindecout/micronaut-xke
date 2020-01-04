@@ -1,13 +1,13 @@
 package fr.xebia.xke.micronaut.pricing.domain;
 
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.constraints.LongRange;
 
 import static fr.xebia.xke.micronaut.pricing.domain.Discount.noDiscount;
 import static fr.xebia.xke.micronaut.pricing.domain.Discount.percentage;
-import static io.reactivex.Maybe.empty;
-import static io.reactivex.Maybe.just;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
@@ -21,7 +21,7 @@ class PricingServiceTest {
 
     @Property
     void should_fail_to_compute_price_for_unknown_article(@ForAll ArticleReference articleReference) {
-        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(empty());
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Maybe.empty());
 
         assertThatExceptionOfType(UnknownArticleException.class)
                 .isThrownBy(() -> service.computePrice(articleReference))
@@ -32,11 +32,11 @@ class PricingServiceTest {
     void should_fail_to_compute_price_for_unavailable_article(@ForAll Article article) {
         final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(just(article));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Maybe.just(article));
         given(bookingClient.getStock(articleReference.getValue()))
-                .willReturn(just(Stock.of(articleReference, 0L)));
+                .willReturn(Flowable.just(Stock.of(articleReference, 0L)));
 
-        assertThat(service.computePrice(articleReference).blockingGet())
+        assertThat(service.computePrice(articleReference).blockingSingle())
                 .isNull();
     }
 
@@ -45,11 +45,11 @@ class PricingServiceTest {
                                                                              @ForAll @LongRange(min = 10) long availableQuantity) {
         final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(just(article));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Maybe.just(article));
         given(bookingClient.getStock(articleReference.getValue()))
-                .willReturn(just(Stock.of(articleReference, availableQuantity)));
+                .willReturn(Flowable.just(Stock.of(articleReference, availableQuantity)));
 
-        assertThat(service.computePrice(articleReference).blockingGet())
+        assertThat(service.computePrice(articleReference).blockingSingle())
                 .isEqualTo(article.getReferencePrice().apply(percentage(20)));
     }
 
@@ -58,11 +58,11 @@ class PricingServiceTest {
                                                                             @ForAll @LongRange(min = 5, max = 9) long availableQuantity) {
         final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(just(article));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Maybe.just(article));
         given(bookingClient.getStock(articleReference.getValue()))
-                .willReturn(just(Stock.of(articleReference, availableQuantity)));
+                .willReturn(Flowable.just(Stock.of(articleReference, availableQuantity)));
 
-        assertThat(service.computePrice(articleReference).blockingGet())
+        assertThat(service.computePrice(articleReference).blockingSingle())
                 .isEqualTo(article.getReferencePrice().apply(percentage(10)));
     }
 
@@ -71,11 +71,11 @@ class PricingServiceTest {
                                                                     @ForAll @LongRange(min = 1, max = 4) long availableQuantity) {
         final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(just(article));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Maybe.just(article));
         given(bookingClient.getStock(articleReference.getValue()))
-                .willReturn(just(Stock.of(articleReference, availableQuantity)));
+                .willReturn(Flowable.just(Stock.of(articleReference, availableQuantity)));
 
-        assertThat(service.computePrice(articleReference).blockingGet())
+        assertThat(service.computePrice(articleReference).blockingSingle())
                 .isEqualTo(article.getReferencePrice().apply(noDiscount()));
     }
 

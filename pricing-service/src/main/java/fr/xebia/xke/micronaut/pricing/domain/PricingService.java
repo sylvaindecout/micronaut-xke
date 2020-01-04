@@ -1,5 +1,6 @@
 package fr.xebia.xke.micronaut.pricing.domain;
 
+import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 
 import javax.inject.Singleton;
@@ -16,7 +17,7 @@ public class PricingService {
         this.bookingClient = bookingClient;
     }
 
-    public Maybe<Price> computePrice(final ArticleReference articleReference) {
+    public Flowable<Price> computePrice(final ArticleReference articleReference) {
         final Price referencePrice = findArticle(articleReference).getReferencePrice();
         return getAvailableQuantity(articleReference)
                 .filter(Quantity::isGreaterThanZero)
@@ -30,7 +31,7 @@ public class PricingService {
                 .orElseThrow(() -> new UnknownArticleException(articleReference));
     }
 
-    private Maybe<Quantity> getAvailableQuantity(final ArticleReference articleReference) {
+    private Flowable<Quantity> getAvailableQuantity(final ArticleReference articleReference) {
         return bookingClient.getStock(articleReference.getValue())
                 .map(Stock::getQuantity);
     }

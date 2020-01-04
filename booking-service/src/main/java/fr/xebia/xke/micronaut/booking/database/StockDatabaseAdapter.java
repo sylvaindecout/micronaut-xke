@@ -4,11 +4,14 @@ import fr.xebia.xke.micronaut.booking.domain.ArticleReference;
 import fr.xebia.xke.micronaut.booking.domain.Stock;
 import fr.xebia.xke.micronaut.booking.domain.StockStorage;
 import io.micronaut.spring.tx.annotation.Transactional;
-import io.reactivex.Maybe;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
+
+import static io.reactivex.BackpressureStrategy.DROP;
 
 @Singleton
 public class StockDatabaseAdapter implements StockStorage {
@@ -21,11 +24,12 @@ public class StockDatabaseAdapter implements StockStorage {
 
     @Override
     @Transactional(readOnly = true)
-    public Maybe<Stock> findByArticleReference(@NotNull ArticleReference article) {
+    public Flowable<Stock> findByArticleReference(@NotNull ArticleReference article) {
         return stockRepository.findByArticleReference(article.getReference())
                 .map(StockEntity::toDomain)
-                .map(Maybe::just)
-                .orElseGet(Maybe::empty);
+                .map(Observable::just)
+                .orElseGet(Observable::empty)
+                .toFlowable(DROP);
     }
 
     @Override

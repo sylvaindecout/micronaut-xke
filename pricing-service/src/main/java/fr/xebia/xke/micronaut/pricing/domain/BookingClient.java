@@ -4,7 +4,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.retry.annotation.CircuitBreaker;
-import io.reactivex.Maybe;
+import io.reactivex.Flowable;
 
 import static io.micronaut.http.MediaType.APPLICATION_JSON;
 
@@ -14,6 +14,6 @@ public interface BookingClient {
 
     @Get("articles/{articleReference}")
     @Produces(APPLICATION_JSON)
-    Maybe<Stock> getStock(String articleReference);
+    Flowable<Stock> getStock(String articleReference);
 
 }

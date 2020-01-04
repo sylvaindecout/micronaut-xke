@@ -1,7 +1,7 @@
 package fr.xebia.xke.micronaut.booking.domain;
 
 import io.micronaut.spring.tx.annotation.Transactional;
-import io.reactivex.Maybe;
+import io.reactivex.Flowable;
 
 import javax.inject.Singleton;
 import java.util.Optional;
@@ -15,14 +15,14 @@ public class BookingService {
         this.stockStorage = stockStorage;
     }
 
-    public Maybe<Stock> getStock(final ArticleReference article) {
+    public Flowable<Stock> getStock(final ArticleReference article) {
         return stockStorage.findByArticleReference(article);
     }
 
     @Transactional
     public void order(final ArticleReference article, final Quantity quantity) {
         final Stock updatedStock = Optional.of(stockStorage.findByArticleReference(article))
-                .map(Maybe::blockingGet)
+                .map(Flowable::blockingLast)
                 .map(initialStock -> initialStock.subtract(quantity))
                 .orElseThrow(() -> new UnknownArticleException(article));
         stockStorage.save(updatedStock);

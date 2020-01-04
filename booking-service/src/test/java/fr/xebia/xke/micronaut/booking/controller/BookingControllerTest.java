@@ -19,8 +19,8 @@ import static fr.xebia.xke.micronaut.HttpClientResponseExceptionConditions.statu
 import static io.micronaut.http.HttpRequest.*;
 import static io.micronaut.http.HttpStatus.CONFLICT;
 import static io.micronaut.http.HttpStatus.NOT_FOUND;
-import static io.reactivex.Maybe.empty;
-import static io.reactivex.Maybe.just;
+import static io.reactivex.Flowable.empty;
+import static io.reactivex.Flowable.just;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

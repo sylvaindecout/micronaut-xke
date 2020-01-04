@@ -1,10 +1,10 @@
 package fr.xebia.xke.micronaut.booking.domain;
 
-import io.reactivex.Maybe;
+import io.reactivex.Flowable;
 import net.jqwik.api.*;
 
-import static io.reactivex.Maybe.empty;
-import static io.reactivex.Maybe.just;
+import static io.reactivex.Flowable.empty;
+import static io.reactivex.Flowable.just;
 import static net.jqwik.api.Arbitraries.defaultFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -22,19 +22,19 @@ class BookingServiceTest {
     void should_fail_to_get_stock_from_database_for_unknown_article(@ForAll ArticleReference article) {
         given(stockStorage.findByArticleReference(article)).willReturn(empty());
 
-        assertThat(service.getStock(article).blockingGet()).isNull();
+        assertThat(service.getStock(article).blockingSingle()).isNull();
     }
 
     @Property
-    void should_get_stock_from_database(@ForAll ArticleReference article, @ForAll("stock") Maybe<Stock> stock) {
+    void should_get_stock_from_database(@ForAll ArticleReference article, @ForAll("stock") Flowable<Stock> stock) {
         given(stockStorage.findByArticleReference(article)).willReturn(stock);
 
         assertThat(service.getStock(article)).isEqualTo(stock);
     }
 
     @Provide
-    private static Arbitrary<Maybe<Stock>> stock() {
-        return defaultFor(Stock.class).map(Maybe::just);
+    private static Arbitrary<Flowable<Stock>> stock() {
+        return defaultFor(Stock.class).map(Flowable::just);
     }
 
     @Property

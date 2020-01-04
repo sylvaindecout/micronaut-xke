@@ -7,6 +7,8 @@ import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 
@@ -16,8 +18,6 @@ import static fr.xebia.xke.micronaut.HttpClientResponseExceptionConditions.statu
 import static fr.xebia.xke.micronaut.pricing.domain.Price.euros;
 import static io.micronaut.http.HttpRequest.GET;
 import static io.micronaut.http.HttpStatus.NOT_FOUND;
-import static io.reactivex.Maybe.empty;
-import static io.reactivex.Maybe.just;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -81,13 +81,13 @@ class PricingControllerTest {
     BookingClient bookingClient() {
         final BookingClient client = mock(BookingClient.class);
         given(client.getStock(any()))
-                .willReturn(empty());
+                .willReturn(Flowable.empty());
         given(client.getStock(ARTICLE_1.getValue()))
-                .willReturn(just(Stock.of(ARTICLE_1, 1L)));
+                .willReturn(Flowable.just(Stock.of(ARTICLE_1, 1L)));
         given(client.getStock(ARTICLE_2_NOT_IN_CATALOGUE.getValue()))
-                .willReturn(just(Stock.of(ARTICLE_2_NOT_IN_CATALOGUE, 1L)));
+                .willReturn(Flowable.just(Stock.of(ARTICLE_2_NOT_IN_CATALOGUE, 1L)));
         given(client.getStock(ARTICLE_4_OUT_OF_STOCK.getValue()))
-                .willReturn(just(Stock.of(ARTICLE_4_OUT_OF_STOCK, 0L)));
+                .willReturn(Flowable.just(Stock.of(ARTICLE_4_OUT_OF_STOCK, 0L)));
         return client;
     }
 
@@ -95,19 +95,19 @@ class PricingControllerTest {
     CatalogueClient catalogueClient() {
         final CatalogueClient client = mock(CatalogueClient.class);
         given(client.getArticle(any()))
-                .willReturn(empty());
+                .willReturn(Maybe.empty());
         given(client.getArticle(ARTICLE_1.getValue()))
-                .willReturn(just(Article.builder()
+                .willReturn(Maybe.just(Article.builder()
                         .reference(ARTICLE_1)
                         .referencePrice(PRICE_OF_ARTICLE_1)
                         .build()));
         given(client.getArticle(ARTICLE_3_UNKNOWN_TO_BOOKING.getValue()))
-                .willReturn(just(Article.builder()
+                .willReturn(Maybe.just(Article.builder()
                         .reference(ARTICLE_3_UNKNOWN_TO_BOOKING)
                         .referencePrice(euros(99.99))
                         .build()));
         given(client.getArticle(ARTICLE_4_OUT_OF_STOCK.getValue()))
-                .willReturn(just(Article.builder()
+                .willReturn(Maybe.just(Article.builder()
                         .reference(ARTICLE_4_OUT_OF_STOCK)
                         .referencePrice(euros(99.99))
                         .build()));
