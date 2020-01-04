@@ -52,3 +52,4 @@ Some dependencies need to be added specifically in `build.gradle`:
 * Lombok: `compileOnly "org.projectlombok:lombok:1.18.8"`
 * Guava: `compile "com.google.guava:guava:28.0-jre"`
 * Mockito: `testCompile "org.mockito:mockito-junit-jupiter:2.28.2"`
+* Jqwik: `testCompile "net.jqwik:jqwik:1.2.1"`
