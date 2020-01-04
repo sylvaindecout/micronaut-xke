@@ -4,6 +4,7 @@ import fr.xebia.xke.micronaut.booking.domain.ArticleReference;
 import fr.xebia.xke.micronaut.booking.domain.Stock;
 import fr.xebia.xke.micronaut.booking.domain.StockStorage;
 import io.micronaut.spring.tx.annotation.Transactional;
+import io.reactivex.Maybe;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
@@ -20,9 +21,11 @@ public class StockDatabaseAdapter implements StockStorage {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Stock> findByArticleReference(@NotNull ArticleReference article) {
+    public Maybe<Stock> findByArticleReference(@NotNull ArticleReference article) {
         return stockRepository.findByArticleReference(article.getReference())
-                .map(StockEntity::toDomain);
+                .map(StockEntity::toDomain)
+                .map(Maybe::just)
+                .orElseGet(Maybe::empty);
     }
 
     @Override

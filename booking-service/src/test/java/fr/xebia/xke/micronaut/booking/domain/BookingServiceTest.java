@@ -1,11 +1,11 @@
 package fr.xebia.xke.micronaut.booking.domain;
 
-import net.jqwik.api.Assume;
-import net.jqwik.api.ForAll;
-import net.jqwik.api.Property;
+import io.reactivex.Maybe;
+import net.jqwik.api.*;
 
-import java.util.Optional;
-
+import static io.reactivex.Maybe.empty;
+import static io.reactivex.Maybe.just;
+import static net.jqwik.api.Arbitraries.defaultFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,10 +19,22 @@ class BookingServiceTest {
     private final BookingService service = new BookingService(stockStorage);
 
     @Property
-    void should_get_stock_from_database(@ForAll ArticleReference article, @ForAll Optional<Stock> stock) {
+    void should_fail_to_get_stock_from_database_for_unknown_article(@ForAll ArticleReference article) {
+        given(stockStorage.findByArticleReference(article)).willReturn(empty());
+
+        assertThat(service.getStock(article).blockingGet()).isNull();
+    }
+
+    @Property
+    void should_get_stock_from_database(@ForAll ArticleReference article, @ForAll("stock") Maybe<Stock> stock) {
         given(stockStorage.findByArticleReference(article)).willReturn(stock);
 
         assertThat(service.getStock(article)).isEqualTo(stock);
+    }
+
+    @Provide
+    private static Arbitrary<Maybe<Stock>> stock() {
+        return defaultFor(Stock.class).map(Maybe::just);
     }
 
     @Property
@@ -40,7 +52,7 @@ class BookingServiceTest {
         Assume.that(!requestedQuantity.isGreaterThan(initialStock.getQuantity()));
 
         reset(stockStorage);
-        given(stockStorage.findByArticleReference(article)).willReturn(Optional.of(initialStock));
+        given(stockStorage.findByArticleReference(article)).willReturn(just(initialStock));
 
         service.order(article, requestedQuantity);
 
@@ -53,7 +65,7 @@ class BookingServiceTest {
         Assume.that(requestedQuantity.isGreaterThan(initialQuantity));
 
         reset(stockStorage);
-        given(stockStorage.findByArticleReference(article)).willReturn(Optional.of(Stock.of(article, initialQuantity.getValue())));
+        given(stockStorage.findByArticleReference(article)).willReturn(just(Stock.of(article, initialQuantity.getValue())));
 
         assertThatExceptionOfType(UnavailableArticleQuantityException.class)
                 .isThrownBy(() -> service.order(article, requestedQuantity))
@@ -65,7 +77,7 @@ class BookingServiceTest {
     @Property
     void should_reject_order_for_unknown_article(@ForAll ArticleReference article, @ForAll Quantity requestedQuantity) {
         reset(stockStorage);
-        given(stockStorage.findByArticleReference(article)).willReturn(Optional.empty());
+        given(stockStorage.findByArticleReference(article)).willReturn(empty());
 
         assertThatExceptionOfType(UnknownArticleException.class)
                 .isThrownBy(() -> service.order(article, requestedQuantity))

@@ -23,7 +23,7 @@ class StockDatabaseAdapterTest {
 
         adapter.save(stock);
 
-        assertThat(adapter.findByArticleReference(ARTICLE)).contains(stock);
+        assertThat(adapter.findByArticleReference(ARTICLE).blockingGet()).isEqualTo(stock);
     }
 
     @Test
@@ -32,12 +32,12 @@ class StockDatabaseAdapterTest {
 
         adapter.save(Stock.of(ARTICLE, 3_000));
 
-        assertThat(adapter.findByArticleReference(ARTICLE)).contains(Stock.of(ARTICLE, 3_000));
+        assertThat(adapter.findByArticleReference(ARTICLE).blockingGet()).isEqualTo(Stock.of(ARTICLE, 3_000));
     }
 
     @Test
     void should_not_find_entity_for_unknown_article() {
-        assertThat(adapter.findByArticleReference(ARTICLE)).isEmpty();
+        assertThat(adapter.findByArticleReference(ARTICLE).blockingGet()).isNull();
     }
 
 }

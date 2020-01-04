@@ -14,14 +14,14 @@ import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-import java.util.Optional;
 
 import static fr.xebia.xke.micronaut.HttpClientResponseExceptionConditions.status;
 import static io.micronaut.http.HttpRequest.*;
 import static io.micronaut.http.HttpStatus.CONFLICT;
 import static io.micronaut.http.HttpStatus.NOT_FOUND;
+import static io.reactivex.Maybe.empty;
+import static io.reactivex.Maybe.just;
 import static java.lang.String.format;
-import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -64,7 +64,7 @@ class BookingControllerTest {
     @Test
     void should_update_stocks_when_an_order_is_made_with_specified_quantity() {
         given(stockRepository.findByArticleReference(ARTICLE_1))
-                .willReturn(Optional.of(Stock.of(ARTICLE_1, 12)));
+                .willReturn(just(Stock.of(ARTICLE_1, 12)));
 
         final HttpResponse<Void> response = client.toBlocking()
                 .exchange(POST(format("/articles/%s/order?quantity=%s", ARTICLE_1.getReference(), 2), ""), Void.class);
@@ -76,7 +76,7 @@ class BookingControllerTest {
     @Test
     void should_fail_to_update_stocks_when_specified_quantity_is_higher_than_available_quantity() {
         given(stockRepository.findByArticleReference(ARTICLE_1))
-                .willReturn(Optional.of(Stock.of(ARTICLE_1, 12)));
+                .willReturn(just(Stock.of(ARTICLE_1, 12)));
 
         final ThrowingCallable call = () -> client.toBlocking()
                 .exchange(POST(format("/articles/%s/order?quantity=%s", ARTICLE_1.getReference(), 14), ""), Void.class);
@@ -90,7 +90,7 @@ class BookingControllerTest {
     @Test
     void should_update_stocks_by_one_when_an_order_is_made_with_no_specified_quantity() {
         given(stockRepository.findByArticleReference(ARTICLE_1))
-                .willReturn(Optional.of(Stock.of(ARTICLE_1, 12)));
+                .willReturn(just(Stock.of(ARTICLE_1, 12)));
 
         final HttpResponse<Void> response = client.toBlocking()
                 .exchange(POST(format("/articles/%s/order", ARTICLE_1.getReference()), ""), Void.class);
@@ -114,7 +114,7 @@ class BookingControllerTest {
     @Test
     void should_expose_quantity_in_stock_for_an_article() {
         given(stockRepository.findByArticleReference(ARTICLE_1))
-                .willReturn(Optional.of(Stock.of(ARTICLE_1, 12)));
+                .willReturn(just(Stock.of(ARTICLE_1, 12)));
 
         final HttpResponse<Stock> response = client.toBlocking()
                 .exchange(GET(format("/articles/%s", ARTICLE_1.getReference())), Stock.class);
@@ -139,7 +139,7 @@ class BookingControllerTest {
     @Test
     void should_overwrite_quantity_in_stock_for_an_existing_article() {
         given(stockRepository.findByArticleReference(ARTICLE_1))
-                .willReturn(Optional.of(Stock.of(ARTICLE_1, 2000)));
+                .willReturn(just(Stock.of(ARTICLE_1, 2000)));
         final Stock requestBody = Stock.of(ARTICLE_1, 12);
 
         final HttpResponse<Void> response = client.toBlocking()

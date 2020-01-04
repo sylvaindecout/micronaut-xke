@@ -7,6 +7,7 @@ import fr.xebia.xke.micronaut.booking.domain.Stock;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.validation.Validated;
+import io.reactivex.Maybe;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
@@ -32,10 +33,9 @@ public class BookingController {
 
     @Get
     @Produces(APPLICATION_JSON)
-    public Stock getStock(@NotBlank final String articleReference) {
+    public Maybe<Stock> getStock(@NotBlank final String articleReference) {
         log.info("Accessing stock for {}", articleReference);
-        return service.getStock(new ArticleReference(articleReference))
-                .orElse(null);
+        return service.getStock(new ArticleReference(articleReference));
     }
 
     @Put
