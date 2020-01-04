@@ -1,6 +1,7 @@
 package fr.xebia.xke.micronaut.catalogue.domain;
 
 import javax.inject.Singleton;
+import java.util.List;
 
 @Singleton
 public class CatalogueService {
@@ -11,8 +12,8 @@ public class CatalogueService {
         this.catalogueStorage = catalogueStorage;
     }
 
-    public Catalogue getCatalogue() {
-        return Catalogue.of(catalogueStorage.findAll());
+    public List<Article> getCatalogue() {
+        return catalogueStorage.findAll();
     }
 
     public void addOrUpdate(final ArticleReference articleReference, final Price price) {

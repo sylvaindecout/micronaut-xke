@@ -3,7 +3,6 @@ package fr.xebia.xke.micronaut.catalogue.controller;
 import fr.xebia.xke.micronaut.catalogue.database.CatalogueDatabaseAdapter;
 import fr.xebia.xke.micronaut.catalogue.domain.Article;
 import fr.xebia.xke.micronaut.catalogue.domain.ArticleReference;
-import fr.xebia.xke.micronaut.catalogue.domain.Catalogue;
 import fr.xebia.xke.micronaut.catalogue.domain.CatalogueStorage;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.HttpClient;
@@ -16,8 +15,11 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 
+import java.util.List;
+
 import static fr.xebia.xke.micronaut.HttpClientResponseExceptionConditions.status;
 import static fr.xebia.xke.micronaut.catalogue.domain.Price.euros;
+import static io.micronaut.core.type.Argument.listOf;
 import static io.micronaut.http.HttpRequest.GET;
 import static io.micronaut.http.HttpRequest.PUT;
 import static io.micronaut.http.HttpStatus.BAD_REQUEST;
@@ -62,11 +64,11 @@ class CatalogueControllerTest {
                 ARTICLE_2
         ));
 
-        final HttpResponse<Catalogue> response = client.toBlocking()
-                .exchange(GET("/articles"), Catalogue.class);
+        final HttpResponse<List<Article>> response = client.toBlocking()
+                .exchange(GET("/articles"), listOf(Article.class));
 
         assertThat(response.status().getCode()).isEqualTo(200);
-        assertThat(response.getBody()).contains(Catalogue.of(
+        assertThat(response.getBody()).contains(asList(
                 ARTICLE_1,
                 ARTICLE_2
         ));

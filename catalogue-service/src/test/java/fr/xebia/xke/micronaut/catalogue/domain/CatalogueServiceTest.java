@@ -19,7 +19,7 @@ class CatalogueServiceTest {
     void should_get_catalogue_from_storage(@ForAll List<Article> articles) {
         given(catalogueStorage.findAll()).willReturn(articles);
 
-        assertThat(service.getCatalogue()).isEqualTo(Catalogue.of(articles));
+        assertThat(service.getCatalogue()).isEqualTo(articles);
     }
 
     @Property
