@@ -23,7 +23,7 @@ public class PricingService {
     }
 
     private Article findArticle(final ArticleReference articleReference) {
-        return catalogueClient.getCatalogue().find(articleReference)
+        return catalogueClient.getArticle(articleReference.getValue())
                 .orElseThrow(() -> new UnknownArticleException(articleReference));
     }
 

@@ -11,6 +11,7 @@ import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 import static fr.xebia.xke.micronaut.HttpClientResponseExceptionConditions.status;
 import static fr.xebia.xke.micronaut.pricing.domain.Price.euros;
@@ -19,6 +20,7 @@ import static io.micronaut.http.HttpStatus.NOT_FOUND;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -87,21 +89,23 @@ class PricingControllerTest {
     @MockBean(CatalogueClient.class)
     CatalogueClient catalogueClient() {
         final CatalogueClient client = mock(CatalogueClient.class);
-        given(client.getCatalogue())
-                .willReturn(Catalogue.of(
-                        Article.builder()
-                                .reference(ARTICLE_1)
-                                .referencePrice(PRICE_OF_ARTICLE_1)
-                                .build(),
-                        Article.builder()
-                                .reference(ARTICLE_3_UNKNOWN_TO_BOOKING)
-                                .referencePrice(euros(99.99))
-                                .build(),
-                        Article.builder()
-                                .reference(ARTICLE_4_OUT_OF_STOCK)
-                                .referencePrice(euros(99.99))
-                                .build()
-                ));
+        given(client.getArticle(any()))
+                .willReturn(Optional.empty());
+        given(client.getArticle(ARTICLE_1.getValue()))
+                .willReturn(Optional.of(Article.builder()
+                        .reference(ARTICLE_1)
+                        .referencePrice(PRICE_OF_ARTICLE_1)
+                        .build()));
+        given(client.getArticle(ARTICLE_3_UNKNOWN_TO_BOOKING.getValue()))
+                .willReturn(Optional.of(Article.builder()
+                        .reference(ARTICLE_3_UNKNOWN_TO_BOOKING)
+                        .referencePrice(euros(99.99))
+                        .build()));
+        given(client.getArticle(ARTICLE_4_OUT_OF_STOCK.getValue()))
+                .willReturn(Optional.of(Article.builder()
+                        .reference(ARTICLE_4_OUT_OF_STOCK)
+                        .referencePrice(euros(99.99))
+                        .build()));
         return client;
     }
 

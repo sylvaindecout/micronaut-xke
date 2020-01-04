@@ -1,9 +1,10 @@
 package fr.xebia.xke.micronaut.pricing.domain;
 
-import net.jqwik.api.Assume;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.constraints.LongRange;
+
+import java.util.Optional;
 
 import static fr.xebia.xke.micronaut.pricing.domain.Discount.noDiscount;
 import static fr.xebia.xke.micronaut.pricing.domain.Discount.percentage;
@@ -19,69 +20,63 @@ class PricingServiceTest {
     private final PricingService service = new PricingService(catalogueClient, bookingClient);
 
     @Property
-    void should_fail_to_compute_price_for_unknown_article(@ForAll ArticleReference article, @ForAll Catalogue catalogue) {
-        Assume.that(!catalogue.getArticles().containsKey(article));
-
-        given(catalogueClient.getCatalogue()).willReturn(catalogue);
+    void should_fail_to_compute_price_for_unknown_article(@ForAll ArticleReference articleReference) {
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Optional.empty());
 
         assertThatExceptionOfType(UnknownArticleException.class)
-                .isThrownBy(() -> service.computePrice(article))
-                .withMessage("Article not found: %s", article);
+                .isThrownBy(() -> service.computePrice(articleReference))
+                .withMessage("Article not found: %s", articleReference);
     }
 
     @Property
-    void should_fail_to_compute_price_for_unavailable_article(@ForAll Catalogue catalogue) {
-        final ArticleReference availableArticle = anArticleFrom(catalogue);
+    void should_fail_to_compute_price_for_unavailable_article(@ForAll Article article) {
+        final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getCatalogue()).willReturn(catalogue);
-        given(bookingClient.getStock(availableArticle.getValue()))
-                .willReturn(Stock.of(availableArticle, 0L));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Optional.of(article));
+        given(bookingClient.getStock(articleReference.getValue()))
+                .willReturn(Stock.of(articleReference, 0L));
 
-        assertThat(service.computePrice(availableArticle))
+        assertThat(service.computePrice(articleReference))
                 .isEmpty();
     }
 
     @Property
-    void should_apply_20_percent_discount_to_article_with_10_available_items(@ForAll Catalogue catalogue,
+    void should_apply_20_percent_discount_to_article_with_10_available_items(@ForAll Article article,
                                                                              @ForAll @LongRange(min = 10) long availableQuantity) {
-        final ArticleReference availableArticle = anArticleFrom(catalogue);
+        final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getCatalogue()).willReturn(catalogue);
-        given(bookingClient.getStock(availableArticle.getValue()))
-                .willReturn(Stock.of(availableArticle, availableQuantity));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Optional.of(article));
+        given(bookingClient.getStock(articleReference.getValue()))
+                .willReturn(Stock.of(articleReference, availableQuantity));
 
-        assertThat(service.computePrice(availableArticle))
-                .contains(catalogue.getReferencePriceFor(availableArticle).apply(percentage(20)));
+        assertThat(service.computePrice(articleReference))
+                .contains(article.getReferencePrice().apply(percentage(20)));
     }
 
     @Property
-    void should_apply_10_percent_discount_to_article_with_5_available_items(@ForAll Catalogue catalogue,
+    void should_apply_10_percent_discount_to_article_with_5_available_items(@ForAll Article article,
                                                                             @ForAll @LongRange(min = 5, max = 9) long availableQuantity) {
-        final ArticleReference availableArticle = anArticleFrom(catalogue);
+        final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getCatalogue()).willReturn(catalogue);
-        given(bookingClient.getStock(availableArticle.getValue()))
-                .willReturn(Stock.of(availableArticle, availableQuantity));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Optional.of(article));
+        given(bookingClient.getStock(articleReference.getValue()))
+                .willReturn(Stock.of(articleReference, availableQuantity));
 
-        assertThat(service.computePrice(availableArticle))
-                .contains(catalogue.getReferencePriceFor(availableArticle).apply(percentage(10)));
+        assertThat(service.computePrice(articleReference))
+                .contains(article.getReferencePrice().apply(percentage(10)));
     }
 
     @Property
-    void should_apply_no_discount_to_article_with_4_available_items(@ForAll Catalogue catalogue,
+    void should_apply_no_discount_to_article_with_4_available_items(@ForAll Article article,
                                                                     @ForAll @LongRange(min = 1, max = 4) long availableQuantity) {
-        final ArticleReference availableArticle = anArticleFrom(catalogue);
+        final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getCatalogue()).willReturn(catalogue);
-        given(bookingClient.getStock(availableArticle.getValue()))
-                .willReturn(Stock.of(availableArticle, availableQuantity));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Optional.of(article));
+        given(bookingClient.getStock(articleReference.getValue()))
+                .willReturn(Stock.of(articleReference, availableQuantity));
 
-        assertThat(service.computePrice(availableArticle))
-                .contains(catalogue.getReferencePriceFor(availableArticle).apply(noDiscount()));
+        assertThat(service.computePrice(articleReference))
+                .contains(article.getReferencePrice().apply(noDiscount()));
     }
 
-    private static ArticleReference anArticleFrom(final Catalogue catalogue) {
-        Assume.that(!catalogue.getArticles().isEmpty());
-        return catalogue.getArticles().keySet().iterator().next();
-    }
 }
