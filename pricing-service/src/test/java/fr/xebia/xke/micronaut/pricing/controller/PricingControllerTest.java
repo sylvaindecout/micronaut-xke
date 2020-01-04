@@ -2,7 +2,7 @@ package fr.xebia.xke.micronaut.pricing.controller;
 
 import fr.xebia.xke.micronaut.pricing.domain.*;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.client.HttpClient;
+import io.micronaut.http.client.RxStreamingHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MicronautTest;
@@ -11,12 +11,13 @@ import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-import java.util.Optional;
 
 import static fr.xebia.xke.micronaut.HttpClientResponseExceptionConditions.status;
 import static fr.xebia.xke.micronaut.pricing.domain.Price.euros;
 import static io.micronaut.http.HttpRequest.GET;
 import static io.micronaut.http.HttpStatus.NOT_FOUND;
+import static io.reactivex.Maybe.empty;
+import static io.reactivex.Maybe.just;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -35,7 +36,7 @@ class PricingControllerTest {
 
     @Inject
     @Client("/pricing")
-    private HttpClient client;
+    private RxStreamingHttpClient client;
 
     @Test
     void should_fail_to_expose_price_for_an_article_that_is_not_in_catalogue() {
@@ -49,20 +50,22 @@ class PricingControllerTest {
 
     @Test
     void should_expose_no_price_for_an_article_for_which_stock_is_not_found() {
-        final HttpResponse<Long> response = client.toBlocking()
+        final ThrowableAssert.ThrowingCallable call = () -> client.toBlocking()
                 .exchange(GET(format("/articles/%s", ARTICLE_3_UNKNOWN_TO_BOOKING.getValue())), Long.class);
 
-        assertThat(response.status().getCode()).isEqualTo(204);
-        assertThat(response.getBody()).isEmpty();
+        assertThatExceptionOfType(HttpClientResponseException.class)
+                .isThrownBy(call)
+                .has(status(NOT_FOUND));
     }
 
     @Test
     void should_expose_no_price_for_article_that_is_out_of_stock() {
-        final HttpResponse<Long> response = client.toBlocking()
+        final ThrowableAssert.ThrowingCallable call = () -> client.toBlocking()
                 .exchange(GET(format("/articles/%s", ARTICLE_4_OUT_OF_STOCK.getValue())), Long.class);
 
-        assertThat(response.status().getCode()).isEqualTo(204);
-        assertThat(response.getBody()).isEmpty();
+        assertThatExceptionOfType(HttpClientResponseException.class)
+                .isThrownBy(call)
+                .has(status(NOT_FOUND));
     }
 
     @Test
@@ -77,12 +80,14 @@ class PricingControllerTest {
     @MockBean(BookingClient.class)
     BookingClient bookingClient() {
         final BookingClient client = mock(BookingClient.class);
+        given(client.getStock(any()))
+                .willReturn(empty());
         given(client.getStock(ARTICLE_1.getValue()))
-                .willReturn(Stock.of(ARTICLE_1, 1L));
+                .willReturn(just(Stock.of(ARTICLE_1, 1L)));
         given(client.getStock(ARTICLE_2_NOT_IN_CATALOGUE.getValue()))
-                .willReturn(Stock.of(ARTICLE_2_NOT_IN_CATALOGUE, 1L));
+                .willReturn(just(Stock.of(ARTICLE_2_NOT_IN_CATALOGUE, 1L)));
         given(client.getStock(ARTICLE_4_OUT_OF_STOCK.getValue()))
-                .willReturn(Stock.of(ARTICLE_4_OUT_OF_STOCK, 0L));
+                .willReturn(just(Stock.of(ARTICLE_4_OUT_OF_STOCK, 0L)));
         return client;
     }
 
@@ -90,19 +95,19 @@ class PricingControllerTest {
     CatalogueClient catalogueClient() {
         final CatalogueClient client = mock(CatalogueClient.class);
         given(client.getArticle(any()))
-                .willReturn(Optional.empty());
+                .willReturn(empty());
         given(client.getArticle(ARTICLE_1.getValue()))
-                .willReturn(Optional.of(Article.builder()
+                .willReturn(just(Article.builder()
                         .reference(ARTICLE_1)
                         .referencePrice(PRICE_OF_ARTICLE_1)
                         .build()));
         given(client.getArticle(ARTICLE_3_UNKNOWN_TO_BOOKING.getValue()))
-                .willReturn(Optional.of(Article.builder()
+                .willReturn(just(Article.builder()
                         .reference(ARTICLE_3_UNKNOWN_TO_BOOKING)
                         .referencePrice(euros(99.99))
                         .build()));
         given(client.getArticle(ARTICLE_4_OUT_OF_STOCK.getValue()))
-                .willReturn(Optional.of(Article.builder()
+                .willReturn(just(Article.builder()
                         .reference(ARTICLE_4_OUT_OF_STOCK)
                         .referencePrice(euros(99.99))
                         .build()));

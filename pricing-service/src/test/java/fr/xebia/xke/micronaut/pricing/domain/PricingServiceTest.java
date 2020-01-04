@@ -4,10 +4,10 @@ import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.constraints.LongRange;
 
-import java.util.Optional;
-
 import static fr.xebia.xke.micronaut.pricing.domain.Discount.noDiscount;
 import static fr.xebia.xke.micronaut.pricing.domain.Discount.percentage;
+import static io.reactivex.Maybe.empty;
+import static io.reactivex.Maybe.just;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
@@ -21,7 +21,7 @@ class PricingServiceTest {
 
     @Property
     void should_fail_to_compute_price_for_unknown_article(@ForAll ArticleReference articleReference) {
-        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Optional.empty());
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(empty());
 
         assertThatExceptionOfType(UnknownArticleException.class)
                 .isThrownBy(() -> service.computePrice(articleReference))
@@ -32,12 +32,12 @@ class PricingServiceTest {
     void should_fail_to_compute_price_for_unavailable_article(@ForAll Article article) {
         final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Optional.of(article));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(just(article));
         given(bookingClient.getStock(articleReference.getValue()))
-                .willReturn(Stock.of(articleReference, 0L));
+                .willReturn(just(Stock.of(articleReference, 0L)));
 
-        assertThat(service.computePrice(articleReference))
-                .isEmpty();
+        assertThat(service.computePrice(articleReference).blockingGet())
+                .isNull();
     }
 
     @Property
@@ -45,12 +45,12 @@ class PricingServiceTest {
                                                                              @ForAll @LongRange(min = 10) long availableQuantity) {
         final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Optional.of(article));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(just(article));
         given(bookingClient.getStock(articleReference.getValue()))
-                .willReturn(Stock.of(articleReference, availableQuantity));
+                .willReturn(just(Stock.of(articleReference, availableQuantity)));
 
-        assertThat(service.computePrice(articleReference))
-                .contains(article.getReferencePrice().apply(percentage(20)));
+        assertThat(service.computePrice(articleReference).blockingGet())
+                .isEqualTo(article.getReferencePrice().apply(percentage(20)));
     }
 
     @Property
@@ -58,12 +58,12 @@ class PricingServiceTest {
                                                                             @ForAll @LongRange(min = 5, max = 9) long availableQuantity) {
         final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Optional.of(article));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(just(article));
         given(bookingClient.getStock(articleReference.getValue()))
-                .willReturn(Stock.of(articleReference, availableQuantity));
+                .willReturn(just(Stock.of(articleReference, availableQuantity)));
 
-        assertThat(service.computePrice(articleReference))
-                .contains(article.getReferencePrice().apply(percentage(10)));
+        assertThat(service.computePrice(articleReference).blockingGet())
+                .isEqualTo(article.getReferencePrice().apply(percentage(10)));
     }
 
     @Property
@@ -71,12 +71,12 @@ class PricingServiceTest {
                                                                     @ForAll @LongRange(min = 1, max = 4) long availableQuantity) {
         final ArticleReference articleReference = article.getReference();
 
-        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(Optional.of(article));
+        given(catalogueClient.getArticle(articleReference.getValue())).willReturn(just(article));
         given(bookingClient.getStock(articleReference.getValue()))
-                .willReturn(Stock.of(articleReference, availableQuantity));
+                .willReturn(just(Stock.of(articleReference, availableQuantity)));
 
-        assertThat(service.computePrice(articleReference))
-                .contains(article.getReferencePrice().apply(noDiscount()));
+        assertThat(service.computePrice(articleReference).blockingGet())
+                .isEqualTo(article.getReferencePrice().apply(noDiscount()));
     }
 
 }

@@ -4,8 +4,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.retry.annotation.CircuitBreaker;
-
-import java.util.Optional;
+import io.reactivex.Maybe;
 
 import static io.micronaut.http.MediaType.APPLICATION_JSON;
 
@@ -15,6 +14,6 @@ public interface CatalogueClient {
 
     @Get("articles/{reference}")
     @Produces(APPLICATION_JSON)
-    Optional<Article> getArticle(String reference);
+    Maybe<Article> getArticle(String reference);
 
 }

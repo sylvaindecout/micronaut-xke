@@ -3,16 +3,15 @@ package fr.xebia.xke.micronaut.pricing.controller;
 import fr.xebia.xke.micronaut.pricing.domain.ArticleReference;
 import fr.xebia.xke.micronaut.pricing.domain.Price;
 import fr.xebia.xke.micronaut.pricing.domain.PricingService;
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.validation.Validated;
+import io.reactivex.Maybe;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.NotBlank;
 
-import static io.micronaut.http.HttpResponse.noContent;
 import static io.micronaut.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
@@ -28,12 +27,10 @@ public class PricingController {
 
     @Get
     @Produces(APPLICATION_JSON)
-    public HttpResponse computePrice(@NotBlank final String articleReference) {
+    public Maybe<Long> computePrice(@NotBlank final String articleReference) {
         log.info("Computing price for {}", articleReference);
         return service.computePrice(new ArticleReference(articleReference))
-                .map(Price::getValueAsCents)
-                .map(HttpResponse::ok)
-                .orElse(noContent());
+                .map(Price::getValueAsCents);
     }
 
 }
