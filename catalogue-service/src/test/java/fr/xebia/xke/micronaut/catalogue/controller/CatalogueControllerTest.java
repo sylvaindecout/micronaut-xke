@@ -5,27 +5,26 @@ import fr.xebia.xke.micronaut.catalogue.domain.Article;
 import fr.xebia.xke.micronaut.catalogue.domain.ArticleReference;
 import fr.xebia.xke.micronaut.catalogue.domain.CatalogueStorage;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.client.HttpClient;
+import io.micronaut.http.client.RxStreamingHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
+import io.reactivex.Flowable;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Optional;
 
 import static fr.xebia.xke.micronaut.HttpClientResponseExceptionConditions.status;
 import static fr.xebia.xke.micronaut.catalogue.domain.Price.euros;
-import static io.micronaut.core.type.Argument.listOf;
 import static io.micronaut.http.HttpRequest.GET;
 import static io.micronaut.http.HttpRequest.PUT;
 import static io.micronaut.http.HttpStatus.BAD_REQUEST;
 import static io.micronaut.http.HttpStatus.NOT_FOUND;
+import static io.reactivex.Maybe.empty;
+import static io.reactivex.Maybe.just;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,7 +47,7 @@ class CatalogueControllerTest {
 
     @Inject
     @Client("/catalogue")
-    private HttpClient client;
+    private RxStreamingHttpClient client;
 
     @Inject
     private CatalogueStorage catalogueRepository;
@@ -60,24 +59,23 @@ class CatalogueControllerTest {
 
     @Test
     void should_expose_all_articles() {
-        given(catalogueRepository.findAll()).willReturn(asList(
+        given(catalogueRepository.findAll()).willReturn(Flowable.fromArray(
                 ARTICLE_1,
                 ARTICLE_2
         ));
 
-        final HttpResponse<List<Article>> response = client.toBlocking()
-                .exchange(GET("/articles"), listOf(Article.class));
+        final Flowable<Article> response = client
+                .jsonStream(GET("/articles"), Article.class);
 
-        assertThat(response.status().getCode()).isEqualTo(200);
-        assertThat(response.getBody()).contains(asList(
+        assertThat(response.blockingIterable()).containsExactly(
                 ARTICLE_1,
                 ARTICLE_2
-        ));
+        );
     }
 
     @Test
     void should_expose_existing_article() {
-        given(catalogueRepository.find(ARTICLE_1.getReference())).willReturn(Optional.of(ARTICLE_1));
+        given(catalogueRepository.find(ARTICLE_1.getReference())).willReturn(just(ARTICLE_1));
 
         final HttpResponse<Article> response = client.toBlocking()
                 .exchange(GET(format("/articles/%s", ARTICLE_1.getReference().getValue())), Article.class);
@@ -89,7 +87,7 @@ class CatalogueControllerTest {
     @Test
     void should_fail_to_expose_unknown_article() {
         final ArticleReference unknownReference = new ArticleReference("unknown");
-        given(catalogueRepository.find(unknownReference)).willReturn(Optional.empty());
+        given(catalogueRepository.find(unknownReference)).willReturn(empty());
 
         final ThrowingCallable call = () -> client.toBlocking()
                 .exchange(GET(format("/articles/%s", unknownReference.getValue())), Article.class);

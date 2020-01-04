@@ -4,12 +4,14 @@ import fr.xebia.xke.micronaut.catalogue.domain.Article;
 import fr.xebia.xke.micronaut.catalogue.domain.ArticleReference;
 import fr.xebia.xke.micronaut.catalogue.domain.CatalogueStorage;
 import io.micronaut.spring.tx.annotation.Transactional;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
 
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Optional;
 
+import static io.reactivex.BackpressureStrategy.BUFFER;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
@@ -23,17 +25,20 @@ public class CatalogueDatabaseAdapter implements CatalogueStorage {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Article> findAll() {
-        return catalogueRepository.findAll().stream()
+    public Flowable<Article> findAll() {
+        final Iterable<Article> articles = catalogueRepository.findAll().stream()
                 .map(ArticleEntity::toDomain)
                 .collect(toList());
+        return Observable.fromIterable(articles).toFlowable(BUFFER);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Article> find(final ArticleReference reference) {
+    public Maybe<Article> find(final ArticleReference reference) {
         return catalogueRepository.find(reference.getValue())
-                .map(ArticleEntity::toDomain);
+                .map(ArticleEntity::toDomain)
+                .map(Maybe::just)
+                .orElseGet(Maybe::empty);
     }
 
     @Override

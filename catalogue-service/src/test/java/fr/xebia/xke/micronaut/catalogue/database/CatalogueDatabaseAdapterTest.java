@@ -32,7 +32,7 @@ class CatalogueDatabaseAdapterTest {
 
     @Test
     void should_update_database_with_new_article() {
-        assertThat(adapter.findAll()).isEmpty();
+        assertThat(adapter.findAll().blockingIterable()).isEmpty();
         final Article newArticle = Article.builder()
                 .reference(REFERENCE)
                 .referencePrice(euros(12.99))
@@ -40,7 +40,7 @@ class CatalogueDatabaseAdapterTest {
 
         adapter.save(newArticle);
 
-        assertThat(adapter.findAll()).containsExactly(newArticle);
+        assertThat(adapter.findAll().blockingIterable()).containsExactly(newArticle);
     }
 
     @Test
@@ -50,7 +50,7 @@ class CatalogueDatabaseAdapterTest {
                 .referencePrice(euros(12.99))
                 .build();
         adapter.save(formerArticle);
-        assertThat(adapter.findAll()).containsExactly(formerArticle);
+        assertThat(adapter.findAll().blockingIterable()).containsExactly(formerArticle);
         final Article updatedArticle = Article.builder()
                 .reference(REFERENCE)
                 .referencePrice(euros(19.22))
@@ -58,7 +58,7 @@ class CatalogueDatabaseAdapterTest {
 
         adapter.save(updatedArticle);
 
-        assertThat(adapter.findAll()).containsExactly(updatedArticle);
+        assertThat(adapter.findAll().blockingIterable()).containsExactly(updatedArticle);
     }
 
     @Test
@@ -67,19 +67,19 @@ class CatalogueDatabaseAdapterTest {
         adapter.save(ARTICLE_2);
         adapter.save(ARTICLE_3);
 
-        assertThat(adapter.findAll()).containsExactly(ARTICLE_1, ARTICLE_2, ARTICLE_3);
+        assertThat(adapter.findAll().blockingIterable()).containsExactly(ARTICLE_1, ARTICLE_2, ARTICLE_3);
     }
 
     @Test
     void should_expose_article_in_database() {
         adapter.save(ARTICLE_1);
 
-        assertThat(adapter.find(ARTICLE_1.getReference())).contains(ARTICLE_1);
+        assertThat(adapter.find(ARTICLE_1.getReference()).blockingGet()).isEqualTo(ARTICLE_1);
     }
 
     @Test
     void should_fail_to_expose_article_not_in_database() {
-        assertThat(adapter.find(REFERENCE)).isEmpty();
+        assertThat(adapter.find(REFERENCE).blockingGet()).isNull();
     }
 
 }

@@ -1,13 +1,13 @@
 package fr.xebia.xke.micronaut.catalogue.domain;
 
-import java.util.List;
-import java.util.Optional;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 
 public interface CatalogueStorage {
 
-    List<Article> findAll();
+    Flowable<Article> findAll();
 
-    Optional<Article> find(final ArticleReference reference);
+    Maybe<Article> find(final ArticleReference reference);
 
     void save(Article article);
 

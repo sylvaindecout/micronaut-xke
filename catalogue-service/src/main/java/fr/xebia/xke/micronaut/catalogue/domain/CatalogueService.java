@@ -1,8 +1,9 @@
 package fr.xebia.xke.micronaut.catalogue.domain;
 
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+
 import javax.inject.Singleton;
-import java.util.List;
-import java.util.Optional;
 
 @Singleton
 public class CatalogueService {
@@ -13,11 +14,11 @@ public class CatalogueService {
         this.catalogueStorage = catalogueStorage;
     }
 
-    public List<Article> getCatalogue() {
+    public Flowable<Article> getCatalogue() {
         return catalogueStorage.findAll();
     }
 
-    public Optional<Article> getArticle(final ArticleReference articleReference) {
+    public Maybe<Article> getArticle(final ArticleReference articleReference) {
         return catalogueStorage.find(articleReference);
     }
 
