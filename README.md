@@ -22,6 +22,10 @@ cd booking-service
 cd random-stock-update-simulator
 ./gradlew run
 ```
+```
+cd pricing-service
+./gradlew run
+```
 
 ## Use case
 The first goal is to define a set of microservices with 2 levels of depth as well as a test client.
