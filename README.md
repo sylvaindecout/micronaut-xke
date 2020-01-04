@@ -22,6 +22,22 @@ cd booking-service
 cd random-stock-update-simulator
 ./gradlew run
 ```
+```
+cd pricing-service
+./gradlew run
+```
+
+## Test project
+1. Initialize catalogue: `./catalogue-service/setup.sh`
+
+2. View catalogue: `curl -v http://localhost:8087/catalogue/articles`
+(expected: 4 articles)
+
+3. View stock: `curl -v http://localhost:8086/booking/articles/BookNumber2`
+(expected: 10 or less)
+
+4. Get price: `curl -v http://localhost:8085/pricing/articles/BookNumber2`
+(expected: 2655 or 2360)
 
 ## Use case
 The first goal is to define a set of microservices with 2 levels of depth as well as a test client.
