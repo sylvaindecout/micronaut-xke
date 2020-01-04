@@ -11,7 +11,15 @@ This project is used as a support for an introduction to [Micronaut](https://mic
 
 ## Run project
 ```shell
+cd catalogue-service
+./gradlew run
+```
+```
 cd booking-service
+./gradlew run
+```
+```
+cd random-stock-update-simulator
 ./gradlew run
 ```
 
